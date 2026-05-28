@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d10" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f8f8f6" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Blutdruck">
@@ -13,25 +13,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-
 :root{
   --bg:#f8f8f6;--bg2:#ffffff;--bg3:#efefec;
   --tx:#0f0f0d;--tx2:#6b6b65;--tx3:#a8a8a2;
   --bd:rgba(0,0,0,0.08);--bd2:rgba(0,0,0,0.14);
-  --nav-h:72px;
+  --nav-h:68px;
   --sat:env(safe-area-inset-top,0px);
   --sab:env(safe-area-inset-bottom,0px);
-  /* classification */
   --c-opt:#16a34a;--c-opt-bg:#dcfce7;
   --c-norm:#4d7c0f;--c-norm-bg:#ecfccb;
   --c-hn:#b45309;--c-hn-bg:#fef3c7;
   --c-g1:#c2410c;--c-g1-bg:#ffedd5;
   --c-g2:#dc2626;--c-g2-bg:#fee2e2;
   --c-g3:#991b1b;--c-g3-bg:#fecaca;
-  /* zone bar colors */
-  --z1:#16a34a;--z2:#65a30d;--z3:#d97706;--z4:#ea580c;--z5:#dc2626;--z6:#991b1b;
 }
-
 @media(prefers-color-scheme:dark){:root{
   --bg:#0d0d10;--bg2:#18181d;--bg3:#222228;
   --tx:#f0f0ec;--tx2:#9a9a94;--tx3:#5a5a56;
@@ -39,126 +34,153 @@
   --c-opt-bg:#14532d;--c-norm-bg:#1a2e05;
   --c-hn-bg:#451a03;--c-g1-bg:#431407;--c-g2-bg:#450a0a;--c-g3-bg:#3b0808;
 }}
-
 html,body{height:100%;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:16px;line-height:1.5}
-
 .app{height:100dvh;display:flex;flex-direction:column;overflow:hidden;max-width:480px;margin:0 auto}
-
-/* Views */
 .views{flex:1;overflow:hidden;position:relative}
-.view{position:absolute;inset:0;overflow-y:auto;padding-bottom:calc(var(--nav-h) + var(--sab) + 1rem);opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .22s ease,transform .22s ease}
+.view{position:absolute;inset:0;overflow-y:auto;padding-bottom:calc(var(--nav-h) + var(--sab) + 1rem);opacity:0;pointer-events:none;transform:translateY(10px);transition:opacity .2s ease,transform .2s ease}
 .view.active{opacity:1;pointer-events:all;transform:translateY(0)}
 .view::-webkit-scrollbar{display:none}
 
-/* Bottom nav */
+/* Nav */
 nav{position:relative;z-index:100;background:var(--bg2);border-top:.5px solid var(--bd);padding-bottom:var(--sab);flex-shrink:0;display:flex}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:var(--nav-h);background:none;border:none;cursor:pointer;color:var(--tx3);font-size:10px;font-weight:500;font-family:inherit;letter-spacing:.03em;transition:color .15s}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:var(--nav-h);background:none;border:none;cursor:pointer;color:var(--tx3);font-size:9px;font-weight:600;font-family:inherit;letter-spacing:.03em;text-transform:uppercase;transition:color .15s}
 .nav-btn.on{color:var(--tx)}
-.nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
-.nav-btn.on svg{stroke:var(--tx);transform:scale(1.05)}
-.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--tx);opacity:0;transition:opacity .15s;margin-top:-2px}
+.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--tx);opacity:0;margin-top:-1px}
 .nav-btn.on .nav-dot{opacity:1}
 
-/* ── DASHBOARD ── */
-.dash-header{padding:calc(var(--sat) + 1.25rem) 1.25rem .75rem;display:flex;align-items:center;justify-content:space-between}
-.dash-title{font-size:13px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em}
-.dash-date{font-size:13px;color:var(--tx3)}
-
-.gauge-card{margin:0 1.25rem 1rem;background:var(--bg2);border-radius:24px;border:.5px solid var(--bd);padding:1.5rem 1.25rem 1.25rem;overflow:hidden}
-.gauge-wrap{display:flex;flex-direction:column;align-items:center}
-.gauge-svg{width:100%;max-width:300px}
-.gauge-vals{text-align:center;margin-top:-2rem;margin-bottom:.75rem}
-.gauge-bp{font-size:52px;font-weight:700;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
-.gauge-bp span{font-size:20px;font-weight:400;color:var(--tx2);letter-spacing:0;margin:0 2px}
-.gauge-hr{font-size:15px;color:var(--tx2);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:6px}
-.heart-icon{display:inline-block;width:14px;height:14px;position:relative;top:1px}
-.heart-icon::before{content:'♥';font-size:13px;color:#e24b4a}
-.cls-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;font-size:13px;font-weight:600;margin:0 auto}
-.cls-dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
-
-.zone-bar-wrap{margin-top:1rem;padding:0 .25rem}
-.zone-bar{height:6px;border-radius:100px;display:flex;overflow:hidden;gap:2px}
-.zone-seg{flex:1;border-radius:100px;position:relative}
-.zone-marker-row{position:relative;height:10px;margin-top:3px}
-.zone-marker{position:absolute;transform:translateX(-50%);top:0}
-.zone-marker-tri{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--tx);margin:0 auto}
-.zone-labels{display:flex;justify-content:space-between;margin-top:4px}
-.zone-lbl{font-size:9px;color:var(--tx3);letter-spacing:.03em}
-
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 1.25rem 1rem}
-.stat-card{background:var(--bg2);border:.5px solid var(--bd);border-radius:16px;padding:.9rem .75rem}
-.stat-lbl{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
-.stat-val{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:2px}
-.stat-sub{font-size:10px;color:var(--tx3);margin-top:1px}
-
-.empty-dash{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;padding:2rem}
-.empty-icon{font-size:48px;opacity:.3}
-.empty-t{font-size:17px;font-weight:600;color:var(--tx)}
-.empty-s{font-size:14px;color:var(--tx3);text-align:center;line-height:1.5}
-
-/* ── EINGABE ── */
-.form-header{padding:calc(var(--sat) + 1.25rem) 1.25rem .5rem}
-.form-title{font-size:22px;font-weight:700}
-.form-body{padding:.75rem 1.25rem}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+/* Common */
+.page-hdr{padding:calc(var(--sat) + 1.1rem) 1.25rem .6rem}
+.page-title{font-size:22px;font-weight:700}
+.card{background:var(--bg2);border:.5px solid var(--bd);border-radius:20px;padding:1.1rem 1.1rem;margin:0 1.1rem .75rem}
+.card-lbl{font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px}
+.card-sub{font-size:11px;color:var(--tx3);margin-bottom:.6rem;line-height:1.4}
 .fi{display:flex;flex-direction:column;gap:5px}
-.fi label{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em}
-input[type=text],input[type=number],input[type=date],input[type=time]{
+.fi label{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em}
+input[type=text],input[type=number],input[type=date],input[type=time],select{
   background:var(--bg2);border:.5px solid var(--bd2);border-radius:12px;
-  color:var(--tx);font-size:17px;font-family:inherit;padding:12px 14px;width:100%;
+  color:var(--tx);font-size:16px;font-family:inherit;padding:11px 13px;width:100%;
   -webkit-appearance:none;appearance:none;transition:border-color .15s
 }
-input:focus{outline:none;border-color:var(--tx);border-width:1.5px}
+input:focus,select:focus{outline:none;border-color:var(--tx);border-width:1.5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.btn-primary{width:100%;padding:15px;font-size:16px;font-weight:700;cursor:pointer;border-radius:14px;border:none;background:var(--tx);color:var(--bg);font-family:inherit;transition:opacity .15s,transform .1s}
+.btn-primary:active{transform:scale(.98);opacity:.85}
+.btn-primary.ok{background:#16a34a;color:#fff}
+.btn-sec{width:100%;padding:12px;font-size:14px;font-weight:500;cursor:pointer;border-radius:12px;border:.5px solid var(--bd2);background:var(--bg2);color:var(--tx);font-family:inherit;margin-bottom:8px;text-align:left;padding-left:1rem}
+.btn-sec:active{background:var(--bg3)}
+.empty{text-align:center;color:var(--tx3);padding:3rem 1rem;font-size:14px;line-height:1.6}
+.sec-lbl{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em;padding:0 1.1rem;margin-bottom:.4rem}
 
-.live-cls{display:none;border-radius:14px;padding:14px 16px;margin-bottom:12px;align-items:center;gap:10px;transition:background .3s,color .3s}
-.live-cls-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,.2);font-size:18px}
-.live-cls-main{font-size:15px;font-weight:700}
-.live-cls-sub{font-size:12px;opacity:.75;margin-top:1px}
+/* ── DASHBOARD ── */
+.dash-topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--sat) + 1rem) 1.25rem .5rem}
+.dash-title{font-size:13px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em}
+.dash-date{font-size:12px;color:var(--tx3)}
 
-.save-btn{width:100%;padding:16px;font-size:17px;font-weight:700;cursor:pointer;border-radius:16px;border:none;background:var(--tx);color:var(--bg);font-family:inherit;transition:opacity .15s,transform .1s;letter-spacing:.01em}
-.save-btn:active{transform:scale(.98);opacity:.85}
-.save-btn.saved{background:#16a34a;color:#fff}
+.gauge-card{margin:0 1.1rem .7rem;background:var(--bg2);border:.5px solid var(--bd);border-radius:20px;padding:1.2rem 1.1rem 1rem;overflow:hidden}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center}
+.gauge-svg{width:100%;max-width:290px}
+.gauge-vals{text-align:center;margin-top:-1.5rem;margin-bottom:.6rem}
+.gauge-bp{font-size:48px;font-weight:700;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums}
+.gauge-bp span{font-size:18px;font-weight:400;color:var(--tx2);margin:0 2px}
+.gauge-hr{font-size:14px;color:var(--tx2);margin-top:3px;display:flex;align-items:center;justify-content:center;gap:5px}
+.cls-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 13px;border-radius:100px;font-size:13px;font-weight:600}
+.cls-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.zone-bar-wrap{width:100%;margin-top:.8rem;padding:0 .2rem}
+.zone-bar{height:5px;border-radius:100px;display:flex;gap:2px}
+.zone-marker-row{position:relative;height:9px;margin-top:2px}
+.zone-marker{position:absolute;transform:translateX(-50%)}
+.zone-tri{width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid var(--tx);margin:0 auto}
+.zone-lbls{display:flex;justify-content:space-between;margin-top:3px}
+.zone-lbl{font-size:9px;color:var(--tx3)}
 
-.privacy-note{font-size:12px;color:var(--tx3);text-align:center;margin-top:14px;line-height:1.5;padding:0 .5rem}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 1.1rem .7rem}
+.stat-card{background:var(--bg2);border:.5px solid var(--bd);border-radius:14px;padding:.75rem .65rem}
+.stat-lbl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+.stat-val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:1px}
+.stat-sub{font-size:9px;color:var(--tx3);margin-top:1px}
+
+/* Mini sparkline */
+.spark-card{margin:0 1.1rem .7rem;background:var(--bg2);border:.5px solid var(--bd);border-radius:20px;padding:1rem 1.1rem .85rem}
+.spark-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.spark-lbl{font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em}
+.spark-legend{display:flex;gap:10px}
+.spark-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--tx3)}
+.spark-dot{width:8px;height:8px;border-radius:2px}
+.spark-wrap{position:relative;height:72px}
+
+.dash-last{display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem .25rem}
+.dash-last-lbl{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em}
+.dash-last-t{font-size:12px;color:var(--tx3)}
+
+/* ── EINGABE ── */
+.form-body{padding:.5rem 1.1rem}
+.live-cls{display:none;border-radius:13px;padding:12px 15px;margin-bottom:11px;align-items:center;gap:10px}
+.live-icon{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.live-main{font-size:14px;font-weight:700}
+.live-sub{font-size:11px;opacity:.75;margin-top:1px}
+.privacy-note{font-size:11px;color:var(--tx3);text-align:center;margin-top:12px;line-height:1.5;padding:0 .5rem}
 
 /* ── VERLAUF ── */
-.chart-header{padding:calc(var(--sat) + 1.25rem) 1.25rem .5rem}
-.chart-title{font-size:22px;font-weight:700}
-.chart-card{margin:.5rem 1.25rem .75rem;background:var(--bg2);border:.5px solid var(--bd);border-radius:20px;padding:1.25rem}
-.chart-lbl{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px}
-.chart-sub{font-size:11px;color:var(--tx3);margin-bottom:.75rem;line-height:1.4}
-.legend{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.legend{display:flex;gap:12px;margin-bottom:10px;flex-wrap:wrap}
 .leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2)}
 .ld{width:10px;height:10px;border-radius:3px}
 .cw{position:relative}
 
-.chart-empty{text-align:center;padding:3rem 1.25rem;color:var(--tx3);font-size:14px}
-
 /* ── MESSUNGEN ── */
-.list-header{padding:calc(var(--sat) + 1.25rem) 1.25rem .75rem;display:flex;align-items:center;justify-content:space-between}
-.list-title{font-size:22px;font-weight:700}
+.list-hdr{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--sat) + 1.1rem) 1.25rem .75rem}
 .list-count{font-size:13px;color:var(--tx3);font-weight:500}
-.list-body{padding:0 1.25rem}
-.entry{background:var(--bg2);border:.5px solid var(--bd);border-radius:18px;padding:1rem 1rem 1rem 1.25rem;margin-bottom:8px;display:flex;align-items:center;gap:12px}
-.entry-left{flex:1;min-width:0}
-.entry-bp{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
-.entry-hr-val{font-size:14px;color:#639922;font-weight:600;margin-left:8px}
-.entry-meta{display:flex;align-items:center;gap:7px;margin-top:4px;flex-wrap:wrap}
-.entry-time{font-size:12px;color:var(--tx3)}
-.entry-badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:100px;white-space:nowrap}
-.entry-note{font-size:12px;color:var(--tx2);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
-.del-btn{background:none;border:.5px solid var(--bd2);color:var(--tx3);width:32px;height:32px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:background .15s,color .15s;line-height:1}
-.del-btn:active{background:var(--c-g2-bg);color:var(--c-g2);border-color:transparent}
-.list-empty{text-align:center;padding:4rem 1.25rem;color:var(--tx3);font-size:14px}
+.list-body{padding:0 1.1rem}
+.entry{background:var(--bg2);border:.5px solid var(--bd);border-radius:16px;padding:.9rem .9rem .9rem 1.1rem;margin-bottom:7px;display:flex;align-items:center;gap:10px}
+.entry-bp{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.entry-hr-val{font-size:13px;color:#639922;font-weight:600;margin-left:7px}
+.entry-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.entry-time{font-size:11px;color:var(--tx3)}
+.entry-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;white-space:nowrap}
+.entry-note{font-size:11px;color:var(--tx2);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.del-btn{background:none;border:.5px solid var(--bd2);color:var(--tx3);width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;line-height:1}
+.del-btn:active{background:var(--c-g2-bg);color:#dc2626;border-color:transparent}
+.exp-section{padding:.25rem 1.1rem 0}
+.imp-input{background:var(--bg2);border:.5px solid var(--bd2);border-radius:12px;color:var(--tx);font-size:14px;padding:11px 13px;width:100%;font-family:inherit}
 
-/* export section */
-.exp-section{padding:.5rem 1.25rem 0}
-.exp-lbl{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
-.exp-btn{width:100%;padding:13px;font-size:15px;font-weight:500;cursor:pointer;border-radius:12px;border:.5px solid var(--bd2);background:var(--bg2);color:var(--tx);font-family:inherit;margin-bottom:8px;transition:background .15s;text-align:left;padding-left:1rem}
-.exp-btn:active{background:var(--bg3)}
-.imp-input{background:var(--bg2);border:.5px solid var(--bd2);border-radius:12px;color:var(--tx);font-size:14px;padding:12px 14px;width:100%;font-family:inherit;-webkit-appearance:none;appearance:none}
+/* ── MEDIKAMENTE ── */
+.meds-body{padding:.5rem 1.1rem}
+.med-search-wrap{position:relative;margin-bottom:10px}
+.med-search{padding-right:40px}
+.med-add-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--tx);color:var(--bg);border:none;width:30px;height:30px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.med-suggestions{position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:.5px solid var(--bd2);border-radius:12px;max-height:200px;overflow-y:auto;z-index:50;margin-top:3px;display:none;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.med-sug-item{padding:10px 13px;cursor:pointer;border-bottom:.5px solid var(--bd);font-size:14px}
+.med-sug-item:last-child{border-bottom:none}
+.med-sug-item:active{background:var(--bg3)}
+.med-sug-cls{font-size:11px;color:var(--tx3);margin-top:1px}
+
+.med-list{margin-bottom:12px}
+.med-entry{background:var(--bg2);border:.5px solid var(--bd);border-radius:14px;padding:.85rem 1rem;margin-bottom:7px;display:flex;align-items:center;gap:10px}
+.med-info{flex:1;min-width:0}
+.med-name{font-size:15px;font-weight:600}
+.med-cls{font-size:11px;color:var(--tx3);margin-top:1px}
+.med-dose{font-size:12px;color:var(--tx2);margin-top:2px}
+.med-del{background:none;border:.5px solid var(--bd2);color:var(--tx3);width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.med-del:active{background:var(--c-g2-bg);color:#dc2626}
+
+/* Interaction alerts */
+.ia-section{margin-bottom:12px}
+.ia-title{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.ia{border-radius:14px;padding:.9rem 1rem;margin-bottom:7px}
+.ia.danger{background:var(--c-g2-bg);border:.5px solid rgba(220,38,38,.25)}
+.ia.warning{background:var(--c-hn-bg);border:.5px solid rgba(180,83,9,.2)}
+.ia-head{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.ia-icon{font-size:18px}
+.ia-label{font-size:13px;font-weight:700}
+.ia.danger .ia-label{color:#991b1b}
+.ia.warning .ia-label{color:#92400e}
+.ia-text{font-size:12px;line-height:1.5;color:var(--tx)}
+.ia-disclaimer{font-size:11px;color:var(--tx3);line-height:1.5;padding:.75rem;background:var(--bg3);border-radius:12px;margin-bottom:12px}
+
+/* Dose input for meds */
+.dose-inline{font-size:13px;color:var(--tx2);cursor:pointer;padding:2px 7px;border-radius:6px;background:var(--bg3);border:none;font-family:inherit;margin-top:3px;display:inline-block}
 </style>
 </head>
 <body>
@@ -167,52 +189,63 @@ input:focus{outline:none;border-color:var(--tx);border-width:1.5px}
 
     <!-- ── DASHBOARD ── -->
     <div class="view active" id="v-dash">
-      <div class="dash-header">
+      <div class="dash-topbar">
         <span class="dash-title">Blutdruck</span>
         <span class="dash-date" id="d-today"></span>
       </div>
-      <div id="dash-empty" class="empty-dash" style="display:none">
-        <div class="empty-icon">🩺</div>
-        <div class="empty-t">Noch keine Messung</div>
-        <div class="empty-s">Erste Messung über das<br>Plus-Symbol eingeben</div>
+      <div id="dash-empty" class="empty" style="display:none">
+        <div style="font-size:40px;opacity:.25;margin-bottom:.5rem">🩺</div>
+        <div style="font-weight:600;font-size:16px;margin-bottom:.25rem">Noch keine Messung</div>
+        <div>Erste Messung über Eingabe starten</div>
       </div>
       <div id="dash-content">
+        <!-- Gauge -->
         <div class="gauge-card">
           <div class="gauge-wrap">
-            <svg class="gauge-svg" viewBox="0 0 300 160" id="gauge-svg"></svg>
+            <svg class="gauge-svg" viewBox="0 0 300 155" id="gauge-svg"></svg>
             <div class="gauge-vals">
               <div class="gauge-bp" id="gauge-bp">—<span>/</span>—</div>
               <div class="gauge-hr" id="gauge-hr">— bpm</div>
             </div>
             <div class="cls-badge" id="cls-badge"><span class="cls-dot"></span><span id="cls-txt">—</span></div>
-            <div class="zone-bar-wrap" style="width:100%;margin-top:1rem">
+            <div class="zone-bar-wrap">
               <div class="zone-bar" id="zone-bar"></div>
               <div class="zone-marker-row" id="zone-marker-row"></div>
-              <div class="zone-labels">
-                <span class="zone-lbl">80</span>
-                <span class="zone-lbl">120</span>
-                <span class="zone-lbl">140</span>
-                <span class="zone-lbl">160</span>
-                <span class="zone-lbl">200</span>
+              <div class="zone-lbls">
+                <span class="zone-lbl">80</span><span class="zone-lbl">120</span>
+                <span class="zone-lbl">140</span><span class="zone-lbl">160</span><span class="zone-lbl">200</span>
               </div>
             </div>
           </div>
         </div>
-        <div class="stats-grid" id="stats-grid">
-          <div class="stat-card"><div class="stat-lbl">Ø Sys</div><div class="stat-val" id="s-sys">—</div><div class="stat-sub">7 Tage</div></div>
-          <div class="stat-card"><div class="stat-lbl">Ø Dia</div><div class="stat-val" id="s-dia">—</div><div class="stat-sub">7 Tage</div></div>
-          <div class="stat-card"><div class="stat-lbl">Ø HF</div><div class="stat-val" id="s-hr">—</div><div class="stat-sub">7 Tage</div></div>
+        <!-- Stats: last 7 measurements -->
+        <div class="dash-last">
+          <span class="dash-last-lbl">Letzte Messung</span>
+          <span class="dash-last-t" id="dash-last-time"></span>
         </div>
-        <div style="padding:0 1.25rem .5rem;display:flex;align-items:center;justify-content:space-between">
-          <span style="font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.07em">Letzte Messung</span>
-          <span style="font-size:12px;color:var(--tx3)" id="dash-last-time"></span>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-lbl">Ø Sys</div><div class="stat-val" id="s-sys">—</div><div class="stat-sub">Ø 7 Mess.</div></div>
+          <div class="stat-card"><div class="stat-lbl">Ø Dia</div><div class="stat-val" id="s-dia">—</div><div class="stat-sub">Ø 7 Mess.</div></div>
+          <div class="stat-card"><div class="stat-lbl">Ø HF</div><div class="stat-val" id="s-hr">—</div><div class="stat-sub">Ø 7 Mess.</div></div>
+        </div>
+        <!-- Mini sparkline -->
+        <div class="spark-card" id="spark-card" style="display:none">
+          <div class="spark-header">
+            <span class="spark-lbl">Letzte 7 Messungen</span>
+            <div class="spark-legend">
+              <span class="spark-leg"><span class="spark-dot" style="background:#e24b4a"></span>Sys</span>
+              <span class="spark-leg"><span class="spark-dot" style="background:#378add"></span>Dia</span>
+              <span class="spark-leg"><span class="spark-dot" style="background:#639922"></span>HF</span>
+            </div>
+          </div>
+          <div class="spark-wrap"><canvas id="spark-canvas" role="img" aria-label="Mini-Verlauf letzte 7 Messungen"></canvas></div>
         </div>
       </div>
     </div>
 
     <!-- ── EINGABE ── -->
     <div class="view" id="v-input">
-      <div class="form-header"><div class="form-title">Messung</div></div>
+      <div class="page-hdr"><div class="page-title">Messung</div></div>
       <div class="form-body">
         <div class="row2">
           <div class="fi"><label>Datum</label><input type="date" id="fd"></div>
@@ -224,335 +257,314 @@ input:focus{outline:none;border-color:var(--tx);border-width:1.5px}
           <div class="fi"><label>HF bpm</label><input type="number" id="fh" min="20" max="250" placeholder="72" inputmode="numeric"></div>
         </div>
         <div class="live-cls" id="live-cls">
-          <div class="live-cls-icon" id="live-icon">○</div>
-          <div>
-            <div class="live-cls-main" id="live-main">—</div>
-            <div class="live-cls-sub" id="live-sub">—</div>
-          </div>
+          <div class="live-icon" id="live-icon">○</div>
+          <div><div class="live-main" id="live-main">—</div><div class="live-sub" id="live-sub"></div></div>
         </div>
-        <div class="fi" style="margin-bottom:14px">
+        <div class="fi" style="margin-bottom:13px">
           <label>Notiz (optional)</label>
-          <input type="text" id="fn" maxlength="120" placeholder="z.B. morgens, nach Sport, Stress …">
+          <input type="text" id="fn" maxlength="120" placeholder="z.B. morgens, nach Sport …">
         </div>
-        <button class="save-btn" id="save-btn" onclick="addEntry()">Messung speichern</button>
-        <div class="privacy-note">🔒 Alle Daten bleiben ausschließlich lokal auf diesem Gerät.<br>Keine Cloud · Keine Konten · Keine Freigaben</div>
+        <button class="btn-primary" id="save-btn" onclick="addEntry()">Messung speichern</button>
+        <div class="privacy-note">🔒 Alle Daten bleiben lokal auf diesem Gerät.<br>Keine Cloud · Keine Konten · Keine Freigaben</div>
       </div>
     </div>
 
     <!-- ── VERLAUF ── -->
     <div class="view" id="v-chart">
-      <div class="chart-header"><div class="chart-title">Verlauf</div></div>
-      <div id="chart-empty" class="chart-empty">Mindestens 2 Messungen erforderlich.</div>
+      <div class="page-hdr"><div class="page-title">Verlauf</div></div>
+      <div id="chart-empty" class="empty">Mindestens 2 Messungen erforderlich.</div>
       <div id="chart-content" style="display:none">
-        <div class="chart-card">
-          <div class="chart-lbl">Blutdruck (mmHg)</div>
-          <div class="chart-sub">Referenz: Optimal 120/80 · Grad 1 Grenze 140/90</div>
+        <div class="card">
+          <div class="card-lbl">Blutdruck (mmHg)</div>
+          <div class="card-sub">Grün gestrichelt: Optimal 120/80 · Rot gestrichelt: Grad-1-Grenze 140/90</div>
           <div class="legend">
             <span class="leg"><span class="ld" style="background:#e24b4a"></span>Systole</span>
             <span class="leg"><span class="ld" style="background:#378add"></span>Diastole</span>
           </div>
-          <div class="cw" style="height:200px"><canvas id="bc" role="img" aria-label="Blutdruckverlauf"></canvas></div>
+          <div class="cw" style="height:195px"><canvas id="bc"></canvas></div>
         </div>
-        <div class="chart-card">
-          <div class="chart-lbl">Herzfrequenz (bpm)</div>
-          <div class="chart-sub">Normbereich 60–100 bpm</div>
+        <div class="card">
+          <div class="card-lbl">Herzfrequenz (bpm)</div>
+          <div class="card-sub">Normbereich 60–100 bpm (gestrichelt)</div>
           <div class="legend"><span class="leg"><span class="ld" style="background:#639922"></span>HF</span></div>
-          <div class="cw" style="height:150px"><canvas id="hc" role="img" aria-label="Herzfrequenzverlauf"></canvas></div>
+          <div class="cw" style="height:145px"><canvas id="hc"></canvas></div>
         </div>
       </div>
     </div>
 
-    <!-- ── MESSUNGEN + EXPORT ── -->
+    <!-- ── MESSUNGEN ── -->
     <div class="view" id="v-list">
-      <div class="list-header">
-        <span class="list-title">Messungen</span>
-        <span class="list-count" id="list-count">0 Einträge</span>
+      <div class="list-hdr">
+        <span class="page-title">Messungen</span>
+        <span class="list-count" id="list-count">0</span>
       </div>
       <div class="list-body" id="list-body">
-        <div class="list-empty" id="list-empty">Noch keine Messungen vorhanden.</div>
+        <div class="empty" id="list-empty">Noch keine Messungen.</div>
       </div>
       <div class="exp-section" style="margin-top:.5rem">
-        <div class="exp-lbl">Export</div>
-        <button class="exp-btn" onclick="exportCSV()">📊 Als CSV exportieren</button>
-        <button class="exp-btn" onclick="exportJSON()">💾 Backup (JSON)</button>
-        <div class="exp-lbl" style="margin-top:.75rem">Import</div>
-        <div class="fi" style="margin-bottom:1rem"><label>JSON-Backup laden</label><input type="file" class="imp-input" accept=".json" onchange="importJSON(this)"></div>
+        <div class="sec-lbl" style="margin-bottom:.5rem">Export</div>
+        <button class="btn-sec" onclick="exportCSV()">📊 Als CSV exportieren</button>
+        <button class="btn-sec" onclick="exportJSON()">💾 Backup (JSON)</button>
+        <div class="sec-lbl" style="margin-top:.75rem;margin-bottom:.5rem">Import</div>
+        <div class="fi" style="padding:0 0 1rem"><label>JSON-Backup laden</label><input type="file" class="imp-input" accept=".json" onchange="importJSON(this)"></div>
+      </div>
+    </div>
+
+    <!-- ── MEDIKAMENTE ── -->
+    <div class="view" id="v-meds">
+      <div class="page-hdr"><div class="page-title">Medikamente</div></div>
+      <div class="meds-body">
+        <!-- Add med -->
+        <div class="card-lbl" style="margin-bottom:.4rem">Medikament hinzufügen</div>
+        <div style="position:relative;margin-bottom:10px">
+          <input type="text" id="med-input" placeholder="Wirkstoff oder Handelsname …" oninput="medSearch()" autocomplete="off" class="med-search">
+          <button class="med-add-btn" onclick="addMed()">+</button>
+          <div class="med-suggestions" id="med-sugg"></div>
+        </div>
+        <div class="row2" style="margin-bottom:14px">
+          <div class="fi"><label>Dosis</label><input type="text" id="med-dose" placeholder="z.B. 5 mg"></div>
+          <div class="fi"><label>Einnahme</label>
+            <select id="med-freq">
+              <option value="1× täglich">1× täglich</option>
+              <option value="2× täglich">2× täglich</option>
+              <option value="morgens">morgens</option>
+              <option value="abends">abends</option>
+              <option value="bei Bedarf">bei Bedarf</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Interaction alerts -->
+        <div id="ia-wrap"></div>
+
+        <!-- Med list -->
+        <div class="card-lbl" style="margin-bottom:.4rem">Meine Medikamente</div>
+        <div class="med-list" id="med-list">
+          <div class="empty" id="med-empty">Noch keine Medikamente eingetragen.</div>
+        </div>
+
+        <div class="ia-disclaimer">
+          ⚕️ Die Wechselwirkungshinweise basieren auf einer eingebetteten Datenbank häufiger Blutdruckmedikamente. Sie ersetzen keine ärztliche oder pharmazeutische Beratung. Unbekannte Medikamente werden nicht erkannt. Bitte klären Sie alle Kombinationen mit Ihrem Arzt oder Apotheker.
+        </div>
       </div>
     </div>
 
   </div><!-- end views -->
 
-  <!-- Bottom nav -->
   <nav>
     <button class="nav-btn on" onclick="goTo('dash',0)" id="nb0">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-      <span>Übersicht</span>
-      <div class="nav-dot"></div>
+      <span>Übersicht</span><div class="nav-dot"></div>
     </button>
     <button class="nav-btn" onclick="goTo('input',1)" id="nb1">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      <span>Eingabe</span>
-      <div class="nav-dot"></div>
+      <span>Eingabe</span><div class="nav-dot"></div>
     </button>
     <button class="nav-btn" onclick="goTo('chart',2)" id="nb2">
       <svg viewBox="0 0 24 24"><polyline points="3 17 8 11 13 14 21 6"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
-      <span>Verlauf</span>
-      <div class="nav-dot"></div>
+      <span>Verlauf</span><div class="nav-dot"></div>
     </button>
     <button class="nav-btn" onclick="goTo('list',3)" id="nb3">
       <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
-      <span>Messungen</span>
-      <div class="nav-dot"></div>
+      <span>Daten</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="goTo('meds',4)" id="nb4">
+      <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/></svg>
+      <span>Medi</span><div class="nav-dot"></div>
     </button>
   </nav>
 </div>
 
 <script>
-/* ── DATA ── */
-let rows = [];
-const KEY = 'bp_v2';
+/* ════ DATA ════ */
+let rows = [], meds = [];
+const KEY_BP = 'bp_v2', KEY_MEDS = 'bp_meds_v1';
 
 function load() {
-  try { rows = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { rows = []; }
+  try { rows = JSON.parse(localStorage.getItem(KEY_BP) || '[]'); } catch { rows = []; }
+  try { meds = JSON.parse(localStorage.getItem(KEY_MEDS) || '[]'); } catch { meds = []; }
   refreshAll();
 }
-function persist() { localStorage.setItem(KEY, JSON.stringify(rows)); }
+function persist()     { localStorage.setItem(KEY_BP, JSON.stringify(rows)); }
+function persistMeds() { localStorage.setItem(KEY_MEDS, JSON.stringify(meds)); }
 
-/* ── CLASSIFICATION ── */
+/* ════ CLASSIFICATION ════ */
 const CLS = [
-  [180,110,'Grad 3 Hypertonie','#7f1d1d','#fca5a5','g3','⚠️'],
-  [160,100,'Grad 2 Hypertonie','#991b1b','#fca5a5','g2','⚠️'],
-  [140, 90,'Grad 1 Hypertonie','#c2410c','#fdba74','g1','⚡'],
-  [130, 85,'Hochnormal',       '#b45309','#fde68a','hn','↑'],
-  [120, 80,'Normal',           '#4d7c0f','#bef264','norm','✓'],
-  [  0,  0,'Optimal',          '#16a34a','#86efac','opt','✓'],
+  [180,110,'Grad 3 Hypertonie','#7f1d1d','g3','⚠️'],
+  [160,100,'Grad 2 Hypertonie','#991b1b','g2','⚠️'],
+  [140, 90,'Grad 1 Hypertonie','#c2410c','g1','⚡'],
+  [130, 85,'Hochnormal',       '#b45309','hn','↑'],
+  [120, 80,'Normal',           '#4d7c0f','norm','✓'],
+  [  0,  0,'Optimal',          '#16a34a','opt','✓'],
 ];
 function classify(s, d) {
-  for (const [sv, dv, lbl, col, light, key, ico] of CLS)
-    if (s >= sv || d >= dv) return { lbl, col, light, key, ico };
-  return { lbl:'Optimal', col:'#16a34a', light:'#86efac', key:'opt', ico:'✓' };
+  for (const [sv, dv, lbl, col, key, ico] of CLS)
+    if (s >= sv || d >= dv) return { lbl, col, key, ico };
+  return { lbl:'Optimal', col:'#16a34a', key:'opt', ico:'✓' };
 }
 
-/* ── GAUGE SVG ── */
-function pt(cx, cy, r, deg) {
+/* ════ GAUGE ════ */
+const ZONES = [[80,120,'#16a34a'],[120,130,'#65a30d'],[130,140,'#d97706'],[140,160,'#ea580c'],[160,180,'#dc2626'],[180,200,'#7f1d1d']];
+const CX=150,CY=150,RO=125;
+function pt(r, deg) {
   const rad = deg * Math.PI / 180;
-  return { x: +(cx + r * Math.cos(rad)).toFixed(2), y: +(cy - r * Math.sin(rad)).toFixed(2) };
+  return { x: +(CX + r * Math.cos(rad)).toFixed(2), y: +(CY - r * Math.sin(rad)).toFixed(2) };
 }
-function arcPath(cx, cy, r, v1, v2, vMin=80, vMax=200) {
-  const a1 = 180 - (v1 - vMin) / (vMax - vMin) * 180;
-  const a2 = 180 - (v2 - vMin) / (vMax - vMin) * 180;
-  const p1 = pt(cx, cy, r, a1), p2 = pt(cx, cy, r, a2);
+function arc(r, v1, v2) {
+  const a1 = 180-(v1-80)/120*180, a2 = 180-(v2-80)/120*180;
+  const p1 = pt(r,a1), p2 = pt(r,a2);
   return `M ${p1.x} ${p1.y} A ${r} ${r} 0 0 1 ${p2.x} ${p2.y}`;
 }
-
-const ZONES = [
-  [80, 120, '#16a34a'],
-  [120,130, '#65a30d'],
-  [130,140, '#d97706'],
-  [140,160, '#ea580c'],
-  [160,180, '#dc2626'],
-  [180,200, '#7f1d1d'],
-];
-const CX = 150, CY = 150, RO = 128, RI = 100;
-
-function buildGauge(sys, dia) {
+function buildGauge(sys) {
   const dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
-  const trackColor = dark ? '#2a2a30' : '#e8e8e4';
-
-  // track background
-  let svg = `<path d="${arcPath(CX,CY,RO,80,200)}" stroke="${trackColor}" stroke-width="22" fill="none" stroke-linecap="round"/>`;
-
-  // zone arcs
-  ZONES.forEach(([v1,v2,col]) => {
-    svg += `<path d="${arcPath(CX,CY,RO,v1,v2)}" stroke="${col}" stroke-width="22" fill="none" opacity="0.85"/>`;
-  });
-
-  // needle dot
-  const { col } = classify(sys || 120, dia || 80);
-  const ang = 180 - (Math.min(Math.max(sys||80,80),200) - 80) / 120 * 180;
-  const np = pt(CX, CY, RO, ang);
-  svg += `<circle cx="${np.x}" cy="${np.y}" r="10" fill="white" stroke="${col}" stroke-width="3.5"/>`;
-  svg += `<circle cx="${np.x}" cy="${np.y}" r="4" fill="${col}"/>`;
-
+  let svg = `<path d="${arc(RO,80,200)}" stroke="${dark?'#2a2a30':'#e4e4e0'}" stroke-width="20" fill="none" stroke-linecap="round"/>`;
+  ZONES.forEach(([v1,v2,col]) => { svg += `<path d="${arc(RO,v1,v2)}" stroke="${col}" stroke-width="20" fill="none" opacity=".82"/>`; });
+  const { col } = classify(sys||120, 80);
+  const ang = 180 - (Math.min(Math.max(sys||80,80),200)-80)/120*180;
+  const np = pt(RO, ang);
+  svg += `<circle cx="${np.x}" cy="${np.y}" r="9" fill="white" stroke="${col}" stroke-width="3"/>`;
+  svg += `<circle cx="${np.x}" cy="${np.y}" r="3.5" fill="${col}"/>`;
   document.getElementById('gauge-svg').innerHTML = svg;
 }
-
-/* ── ZONE BAR ── */
 function buildZoneBar(sys) {
-  const bar = document.getElementById('zone-bar');
+  const total = 120;
+  document.getElementById('zone-bar').innerHTML = ZONES.map(([v1,v2,col]) =>
+    `<div style="flex:${v2-v1} 1 0%;background:${col};border-radius:100px;opacity:.8"></div>`).join('');
   const row = document.getElementById('zone-marker-row');
-  const total = 200 - 80;
-  bar.innerHTML = ZONES.map(([v1,v2,col]) => {
-    const w = (v2-v1)/total*100;
-    return `<div class="zone-seg" style="background:${col};flex:${v2-v1} 1 0%;opacity:.8"></div>`;
-  }).join('');
   if (sys) {
-    const pct = Math.min(Math.max((sys-80)/total*100, 0), 100);
-    row.innerHTML = `<div class="zone-marker" style="left:${pct}%"><div class="zone-marker-tri"></div></div>`;
-  } else { row.innerHTML = ''; }
+    const pct = Math.min(Math.max((sys-80)/total*100,0),100);
+    row.innerHTML = `<div class="zone-marker" style="left:${pct}%"><div class="zone-tri"></div></div>`;
+  } else row.innerHTML = '';
 }
 
-/* ── DASHBOARD ── */
+/* ════ DASHBOARD ════ */
 function refreshDash() {
-  const today = new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('d-today').textContent = today;
-
-  if (!rows.length) {
-    document.getElementById('dash-empty').style.display='flex';
-    document.getElementById('dash-content').style.display='none';
-    return;
-  }
-  document.getElementById('dash-empty').style.display='none';
-  document.getElementById('dash-content').style.display='block';
+  document.getElementById('d-today').textContent = new Date().toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});
+  const empty = document.getElementById('dash-empty'), content = document.getElementById('dash-content');
+  if (!rows.length) { empty.style.display='flex'; content.style.display='none'; return; }
+  empty.style.display='none'; content.style.display='block';
 
   const last = rows[rows.length-1];
-  const { lbl, col, light, key } = classify(last.sys, last.dia);
-
+  const { lbl, col, key } = classify(last.sys, last.dia);
   document.getElementById('gauge-bp').innerHTML = `${last.sys}<span>/</span>${last.dia}`;
-  document.getElementById('gauge-hr').innerHTML = `<span class="heart-icon"></span>${last.hr} bpm`;
-
+  document.getElementById('gauge-hr').innerHTML = `♥ ${last.hr} bpm`;
   const badge = document.getElementById('cls-badge');
-  badge.style.background = `var(--c-${key}-bg)`;
-  badge.style.color = col;
+  badge.style.background = `var(--c-${key}-bg)`; badge.style.color = col;
   document.getElementById('cls-txt').textContent = lbl;
-
   const t = new Date(last.dt);
   document.getElementById('dash-last-time').textContent = t.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}) + ' ' + t.toTimeString().slice(0,5);
+  buildGauge(last.sys); buildZoneBar(last.sys);
 
-  buildGauge(last.sys, last.dia);
-  buildZoneBar(last.sys);
+  // Average of last 7 measurements (not days)
+  const r7 = rows.slice(-7);
+  const avg = arr => Math.round(arr.reduce((s,e)=>s+e,0)/arr.length);
+  document.getElementById('s-sys').textContent = avg(r7.map(e=>e.sys));
+  document.getElementById('s-dia').textContent = avg(r7.map(e=>e.dia));
+  document.getElementById('s-hr').textContent  = avg(r7.map(e=>e.hr));
 
-  // 7d stats
-  const cut = Date.now() - 7*864e5, r7 = rows.filter(e => new Date(e.dt).getTime() >= cut);
-  if (r7.length) {
-    const avg = arr => Math.round(arr.reduce((s,e)=>s+e,0)/arr.length);
-    document.getElementById('s-sys').textContent = avg(r7.map(e=>e.sys));
-    document.getElementById('s-dia').textContent = avg(r7.map(e=>e.dia));
-    document.getElementById('s-hr').textContent = avg(r7.map(e=>e.hr));
-  }
+  buildSparkline(r7);
 }
 
-/* ── FORM ── */
-function initForm() {
-  const d = new Date();
-  document.getElementById('fd').value = d.toISOString().slice(0,10);
-  document.getElementById('ft').value = d.toTimeString().slice(0,5);
+/* ════ SPARKLINE ════ */
+let sparkChart = null;
+function buildSparkline(r7) {
+  const card = document.getElementById('spark-card');
+  if (r7.length < 2) { card.style.display='none'; if(sparkChart){sparkChart.destroy();sparkChart=null;} return; }
+  card.style.display='block';
+  const dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const labels = r7.map(e => { const d=new Date(e.dt); return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}); });
+  if (sparkChart) sparkChart.destroy();
+  sparkChart = new Chart(document.getElementById('spark-canvas'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { data: r7.map(e=>e.sys), borderColor:'#e24b4a', borderWidth:2, pointRadius:2.5, tension:.35, backgroundColor:'transparent' },
+      { data: r7.map(e=>e.dia), borderColor:'#378add', borderWidth:2, pointRadius:2.5, tension:.35, backgroundColor:'transparent' },
+      { data: r7.map(e=>e.hr),  borderColor:'#639922', borderWidth:2, pointRadius:2.5, tension:.35, backgroundColor:'transparent' },
+    ]},
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false,cornerRadius:8} },
+      scales: {
+        x:{ grid:{display:false}, ticks:{color:dark?'#5a5a56':'#a8a8a2',font:{size:9},maxRotation:0} },
+        y:{ display:false, suggestedMin:50, suggestedMax:160 }
+      }
+    }
+  });
 }
 
-const ICONS = {opt:'○',norm:'✓',hn:'↑',g1:'⚡',g2:'⚠',g3:'⚠'};
+/* ════ FORM ════ */
 const GUIDES = {opt:'Herzlichen Glückwunsch — sehr guter Wert',norm:'Guter Wert im Normalbereich',hn:'Leicht erhöht — beobachten',g1:'Erhöht — Arzt informieren',g2:'Deutlich erhöht — Arzt aufsuchen',g3:'Sehr hoch — sofort handeln'};
-
+function initForm() { const d=new Date(); document.getElementById('fd').value=d.toISOString().slice(0,10); document.getElementById('ft').value=d.toTimeString().slice(0,5); }
 function upPrev() {
-  const s = parseInt(document.getElementById('fs').value);
-  const d = parseInt(document.getElementById('fdi').value);
-  const el = document.getElementById('live-cls');
-  if (!s || !d) { el.style.display='none'; return; }
-  const { lbl, col, key } = classify(s, d);
-  el.style.display='flex';
-  el.style.background=`var(--c-${key}-bg)`;
-  el.style.color=col;
-  document.getElementById('live-main').textContent = lbl;
-  document.getElementById('live-sub').textContent = GUIDES[key];
-  document.getElementById('live-icon').textContent = ICONS[key];
+  const s=parseInt(document.getElementById('fs').value), d=parseInt(document.getElementById('fdi').value);
+  const el=document.getElementById('live-cls'); if(!s||!d){el.style.display='none';return;}
+  const{lbl,col,key,ico}=classify(s,d);
+  el.style.cssText=`display:flex;align-items:center;gap:10px;border-radius:13px;padding:12px 15px;margin-bottom:11px;background:var(--c-${key}-bg);color:${col}`;
+  document.getElementById('live-main').textContent=lbl;
+  document.getElementById('live-sub').textContent=GUIDES[key];
+  document.getElementById('live-icon').textContent=ico;
 }
-
-async function addEntry() {
+function addEntry() {
   const s=parseInt(document.getElementById('fs').value);
   const di=parseInt(document.getElementById('fdi').value);
   const h=parseInt(document.getElementById('fh').value);
-  const date=document.getElementById('fd').value;
-  const time=document.getElementById('ft').value;
+  const date=document.getElementById('fd').value, time=document.getElementById('ft').value;
   const note=document.getElementById('fn').value.trim();
-  if(!s||!di||!h||!date||!time) return;
-  if(s<60||s>280||di<30||di>160||h<20||h>250) return;
-
-  rows.push({id:Date.now(), dt:`${date}T${time}`, sys:s, dia:di, hr:h, note});
+  if(!s||!di||!h||!date||!time)return;
+  if(s<60||s>280||di<30||di>160||h<20||h>250)return;
+  rows.push({id:Date.now(),dt:`${date}T${time}`,sys:s,dia:di,hr:h,note});
   rows.sort((a,b)=>a.dt.localeCompare(b.dt));
   persist();
-
   ['fs','fdi','fh','fn'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('live-cls').style.display='none';
   initForm();
-
   const btn=document.getElementById('save-btn');
-  btn.textContent='✓ Gespeichert'; btn.classList.add('saved');
-  setTimeout(()=>{btn.textContent='Messung speichern';btn.classList.remove('saved');},2200);
-
+  btn.textContent='✓ Gespeichert'; btn.classList.add('ok');
+  setTimeout(()=>{btn.textContent='Messung speichern';btn.classList.remove('ok');},2200);
   refreshAll();
-  setTimeout(()=>goTo('dash',0), 600);
+  setTimeout(()=>goTo('dash',0),600);
 }
 
-/* ── CHARTS ── */
-let bChart=null, hChart=null;
+/* ════ CHARTS ════ */
 const refPlugin={id:'rl',afterDraw(ch,_,opts){
-  const{ctx,chartArea:{left,right,top,bottom},scales:{y}}=ch;
-  ctx.save();ctx.lineWidth=1;
-  (opts.lines||[]).forEach(({v,col})=>{
-    const yp=y.getPixelForValue(v);
-    if(yp<top||yp>bottom)return;
-    ctx.setLineDash([5,4]);ctx.strokeStyle=col;
-    ctx.beginPath();ctx.moveTo(left,yp);ctx.lineTo(right,yp);ctx.stroke();
-  });
+  const{ctx,chartArea:{left,right,top,bottom},scales:{y}}=ch; ctx.save(); ctx.lineWidth=1;
+  (opts.lines||[]).forEach(({v,col})=>{const yp=y.getPixelForValue(v);if(yp<top||yp>bottom)return;ctx.setLineDash([5,4]);ctx.strokeStyle=col;ctx.beginPath();ctx.moveTo(left,yp);ctx.lineTo(right,yp);ctx.stroke();});
   ctx.restore();
 }};
 Chart.register(refPlugin);
-
+let bChart=null, hChart=null;
 function buildCharts() {
   const d=rows.slice(-30);
-  const empty=document.getElementById('chart-empty');
-  const content=document.getElementById('chart-content');
+  const empty=document.getElementById('chart-empty'), content=document.getElementById('chart-content');
   if(d.length<2){empty.style.display='block';content.style.display='none';return;}
-  empty.style.display='none';content.style.display='block';
-
+  empty.style.display='none'; content.style.display='block';
   const dark=window.matchMedia('(prefers-color-scheme:dark)').matches;
-  const gc=dark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
-  const tc=dark?'#5a5a56':'#a8a8a2';
+  const gc=dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)', tc=dark?'#5a5a56':'#a8a8a2';
   const labels=d.map(e=>{const dt=new Date(e.dt);return dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});});
   const base={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,cornerRadius:8}}};
-
   if(bChart)bChart.destroy();
-  bChart=new Chart(document.getElementById('bc'),{
-    type:'line',
-    data:{labels,datasets:[
-      {label:'Systole',data:d.map(e=>e.sys),borderColor:'#e24b4a',backgroundColor:'transparent',borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.35},
-      {label:'Diastole',data:d.map(e=>e.dia),borderColor:'#378add',backgroundColor:'transparent',borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.35}
-    ]},
-    options:{...base,plugins:{...base.plugins,rl:{lines:[
-      {v:120,col:'rgba(99,153,34,.5)'},{v:80,col:'rgba(99,153,34,.4)'},
-      {v:140,col:'rgba(226,75,74,.5)'},{v:90,col:'rgba(226,75,74,.4)'}
-    ]}},scales:{
-      x:{grid:{color:gc},ticks:{color:tc,font:{size:11},maxRotation:0,autoSkip:true,maxTicksLimit:8}},
-      y:{grid:{color:gc},ticks:{color:tc,font:{size:11}},suggestedMin:55,suggestedMax:155}
-    }}
-  });
-
+  bChart=new Chart(document.getElementById('bc'),{type:'line',data:{labels,datasets:[
+    {label:'Systole',data:d.map(e=>e.sys),borderColor:'#e24b4a',backgroundColor:'transparent',borderWidth:2,pointRadius:3.5,tension:.35},
+    {label:'Diastole',data:d.map(e=>e.dia),borderColor:'#378add',backgroundColor:'transparent',borderWidth:2,pointRadius:3.5,tension:.35}
+  ]},options:{...base,plugins:{...base.plugins,rl:{lines:[{v:120,col:'rgba(99,153,34,.5)'},{v:80,col:'rgba(99,153,34,.4)'},{v:140,col:'rgba(226,75,74,.5)'},{v:90,col:'rgba(226,75,74,.4)'}]}},
+    scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11},maxRotation:0,autoSkip:true,maxTicksLimit:8}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}},suggestedMin:55,suggestedMax:155}}}});
   if(hChart)hChart.destroy();
-  hChart=new Chart(document.getElementById('hc'),{
-    type:'line',
-    data:{labels,datasets:[
-      {label:'HF',data:d.map(e=>e.hr),borderColor:'#639922',backgroundColor:'transparent',borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.35}
-    ]},
-    options:{...base,plugins:{...base.plugins,rl:{lines:[
-      {v:60,col:'rgba(99,153,34,.5)'},{v:100,col:'rgba(226,75,74,.45)'}
-    ]}},scales:{
-      x:{grid:{color:gc},ticks:{color:tc,font:{size:11},maxRotation:0,autoSkip:true,maxTicksLimit:8}},
-      y:{grid:{color:gc},ticks:{color:tc,font:{size:11}},suggestedMin:45,suggestedMax:115}
-    }}
-  });
+  hChart=new Chart(document.getElementById('hc'),{type:'line',data:{labels,datasets:[
+    {label:'HF',data:d.map(e=>e.hr),borderColor:'#639922',backgroundColor:'transparent',borderWidth:2,pointRadius:3.5,tension:.35}
+  ]},options:{...base,plugins:{...base.plugins,rl:{lines:[{v:60,col:'rgba(99,153,34,.5)'},{v:100,col:'rgba(226,75,74,.45)'}]}},
+    scales:{x:{grid:{color:gc},ticks:{color:tc,font:{size:11},maxRotation:0,autoSkip:true,maxTicksLimit:8}},y:{grid:{color:gc},ticks:{color:tc,font:{size:11}},suggestedMin:45,suggestedMax:115}}}});
 }
 
-/* ── LIST ── */
+/* ════ LIST ════ */
 function renderList() {
-  const body=document.getElementById('list-body');
-  const empty=document.getElementById('list-empty');
+  const body=document.getElementById('list-body'), empty=document.getElementById('list-empty');
   document.getElementById('list-count').textContent=`${rows.length} Eintrag${rows.length!==1?'e':''}`;
-  if(!rows.length){empty.style.display='block';return;}
-  empty.style.display='none';
+  if(!rows.length){empty.style.display='block';body.innerHTML='<div class="empty" id="list-empty">Noch keine Messungen.</div>';return;}
   const fdt=dt=>{const d=new Date(dt);return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+d.toTimeString().slice(0,5);};
-  body.innerHTML='<div class="list-empty" id="list-empty" style="display:none"></div>'+[...rows].reverse().map(e=>{
+  body.innerHTML=[...rows].reverse().map(e=>{
     const{lbl,col,key}=classify(e.sys,e.dia);
     return`<div class="entry">
-      <div class="entry-left">
+      <div style="flex:1;min-width:0">
         <div><span class="entry-bp">${e.sys}/${e.dia}</span><span class="entry-hr-val">${e.hr} bpm</span></div>
         <div class="entry-meta">
           <span class="entry-time">${fdt(e.dt)}</span>
@@ -564,60 +576,207 @@ function renderList() {
     </div>`;
   }).join('');
 }
+function delEntry(id){if(!confirm('Messung löschen?'))return;rows=rows.filter(e=>e.id!==id);persist();refreshAll();}
 
-function delEntry(id) {
-  if(!confirm('Messung löschen?')) return;
-  rows=rows.filter(e=>e.id!==id);
-  persist(); refreshAll();
-}
-
-/* ── EXPORT/IMPORT ── */
-function exportCSV() {
+/* ════ EXPORT / IMPORT ════ */
+function exportCSV(){
   const hdr='Datum,Uhrzeit,Systole_mmHg,Diastole_mmHg,HF_bpm,Klassifikation,Notiz\n';
-  const body=rows.map(e=>{
-    const{lbl}=classify(e.sys,e.dia);
-    const[date,time]=e.dt.split('T');
-    return[date,time,e.sys,e.dia,e.hr,lbl,`"${(e.note||'').replace(/"/g,'""')}"`].join(',');
-  }).join('\n');
+  const body=rows.map(e=>{const{lbl}=classify(e.sys,e.dia);const[date,time]=e.dt.split('T');return[date,time,e.sys,e.dia,e.hr,lbl,`"${(e.note||'').replace(/"/g,'""')}"`].join(',');}).join('\n');
   dl('\uFEFF'+hdr+body,`blutdruck_${new Date().toISOString().slice(0,10)}.csv`,'text/csv;charset=utf-8');
 }
-function exportJSON() { dl(JSON.stringify(rows,null,2),`blutdruck_backup_${new Date().toISOString().slice(0,10)}.json`,'application/json'); }
-function dl(content,name,type) { const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click(); }
-function importJSON(input) {
+function exportJSON(){dl(JSON.stringify(rows,null,2),`blutdruck_backup_${new Date().toISOString().slice(0,10)}.json`,'application/json');}
+function dl(content,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();}
+function importJSON(input){
   const f=input.files[0];if(!f)return;
   const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      if(!Array.isArray(data))throw new Error();
-      if(!confirm(`${data.length} Einträge importieren?`))return;
-      const ids=new Set(rows.map(r=>r.id));
-      data.forEach(entry=>{if(!ids.has(entry.id))rows.push(entry);});
-      rows.sort((a,b)=>a.dt.localeCompare(b.dt));
-      persist();refreshAll();alert('Import abgeschlossen.');
-    }catch{alert('Ungültige Datei.');}
-  };
+  r.onload=e=>{try{const data=JSON.parse(e.target.result);if(!Array.isArray(data))throw 0;
+    if(!confirm(`${data.length} Einträge importieren?`))return;
+    const ids=new Set(rows.map(r=>r.id));
+    data.forEach(entry=>{if(!ids.has(entry.id))rows.push(entry);});
+    rows.sort((a,b)=>a.dt.localeCompare(b.dt));persist();refreshAll();alert('Import abgeschlossen.');
+  }catch{alert('Ungültige Datei.');}};
   r.readAsText(f);
 }
 
-/* ── NAVIGATION ── */
-const VIEWS=['dash','input','chart','list'];
-let current=0;
+/* ════ MEDICATIONS DATABASE ════ */
+const MED_DB = [
+  // ACE-Hemmer
+  {name:'Ramipril',cls:'ACE-Hemmer'},{name:'Lisinopril',cls:'ACE-Hemmer'},
+  {name:'Enalapril',cls:'ACE-Hemmer'},{name:'Perindopril',cls:'ACE-Hemmer'},
+  {name:'Quinapril',cls:'ACE-Hemmer'},{name:'Fosinopril',cls:'ACE-Hemmer'},
+  {name:'Captopril',cls:'ACE-Hemmer'},{name:'Trandolapril',cls:'ACE-Hemmer'},
+  // Sartane
+  {name:'Valsartan',cls:'Sartan (AT1-Antagonist)'},{name:'Losartan',cls:'Sartan (AT1-Antagonist)'},
+  {name:'Candesartan',cls:'Sartan (AT1-Antagonist)'},{name:'Olmesartan',cls:'Sartan (AT1-Antagonist)'},
+  {name:'Telmisartan',cls:'Sartan (AT1-Antagonist)'},{name:'Irbesartan',cls:'Sartan (AT1-Antagonist)'},
+  {name:'Azilsartan',cls:'Sartan (AT1-Antagonist)'},
+  // Kalziumantagonisten DHP
+  {name:'Amlodipin',cls:'Kalziumantagonist (DHP)'},{name:'Lercanidipin',cls:'Kalziumantagonist (DHP)'},
+  {name:'Felodipin',cls:'Kalziumantagonist (DHP)'},{name:'Nifedipin',cls:'Kalziumantagonist (DHP)'},
+  {name:'Nitrendipin',cls:'Kalziumantagonist (DHP)'},
+  // Kalziumantagonisten Non-DHP
+  {name:'Verapamil',cls:'Kalziumantagonist (Non-DHP)'},{name:'Diltiazem',cls:'Kalziumantagonist (Non-DHP)'},
+  // Betablocker
+  {name:'Bisoprolol',cls:'Betablocker'},{name:'Metoprolol',cls:'Betablocker'},
+  {name:'Nebivolol',cls:'Betablocker'},{name:'Atenolol',cls:'Betablocker'},
+  {name:'Carvedilol',cls:'Betablocker'},{name:'Propranolol',cls:'Betablocker'},
+  // Thiaziddiuretika
+  {name:'Hydrochlorothiazid (HCT)',cls:'Thiaziddiuretikum'},{name:'Indapamid',cls:'Thiaziddiuretikum'},
+  {name:'Chlortalidon',cls:'Thiaziddiuretikum'},{name:'Xipamid',cls:'Thiaziddiuretikum'},
+  // Schleifendiuretika
+  {name:'Torasemid',cls:'Schleifendiuretikum'},{name:'Furosemid',cls:'Schleifendiuretikum'},
+  {name:'Piretanid',cls:'Schleifendiuretikum'},
+  // Kaliumsparende Diuretika
+  {name:'Spironolacton',cls:'Kaliumsparendes Diuretikum'},{name:'Eplerenon',cls:'Kaliumsparendes Diuretikum'},
+  {name:'Amilorid',cls:'Kaliumsparendes Diuretikum'},
+  // Alphablocker
+  {name:'Doxazosin',cls:'Alphablocker'},{name:'Urapidil',cls:'Alphablocker'},{name:'Prazosin',cls:'Alphablocker'},
+  // Zentral wirkend
+  {name:'Moxonidin',cls:'Zentral wirkend'},{name:'Clonidin',cls:'Zentral wirkend'},{name:'Methyldopa',cls:'Zentral wirkend'},
+  // Renin-Inhibitor
+  {name:'Aliskiren',cls:'Renin-Inhibitor'},
+  // Vasodilatatoren
+  {name:'Hydralazin',cls:'Vasodilatator'},{name:'Minoxidil',cls:'Vasodilatator'},
+];
+
+function medGroup(cls) {
+  if(cls==='ACE-Hemmer') return ['RAAS','ACE'];
+  if(cls.startsWith('Sartan')) return ['RAAS','ARB'];
+  if(cls==='Renin-Inhibitor') return ['RAAS','RI'];
+  if(cls==='Kalziumantagonist (Non-DHP)') return ['NonDHP'];
+  if(cls==='Betablocker') return ['BB'];
+  if(cls==='Kaliumsparendes Diuretikum') return ['KSD'];
+  if(cls==='Thiaziddiuretikum') return ['Thiazid'];
+  if(cls==='Schleifendiuretikum') return ['Schleife'];
+  if(cls==='Alphablocker') return ['Alpha'];
+  if(cls==='Zentral wirkend') return ['Zentral'];
+  return [];
+}
+
+const IA_RULES = [
+  {g:['ACE','ARB'],   sev:'danger',  txt:'ACE-Hemmer + Sartan (duale RAAS-Blockade): Erhöhtes Risiko für Nierenversagen, Hyperkaliämie und Blutdruckabfall. Kombination nur unter engmaschiger ärztlicher Kontrolle.'},
+  {g:['ACE','RI'],    sev:'danger',  txt:'ACE-Hemmer + Aliskiren: Dreifache RAAS-Blockade — sehr hohes Risiko für Nierenschäden und gefährlichen Kaliumanstieg.'},
+  {g:['ARB','RI'],    sev:'danger',  txt:'Sartan + Aliskiren: Dreifache RAAS-Blockade — sehr hohes Risiko für Nierenschäden und Hyperkaliämie.'},
+  {g:['ACE','KSD'],   sev:'danger',  txt:'ACE-Hemmer + Kaliumsparendes Diuretikum: Risiko für gefährlich erhöhten Kaliumspiegel (Hyperkaliämie).'},
+  {g:['ARB','KSD'],   sev:'danger',  txt:'Sartan + Kaliumsparendes Diuretikum: Risiko für gefährlich erhöhten Kaliumspiegel (Hyperkaliämie).'},
+  {g:['BB','NonDHP'], sev:'danger',  txt:'Betablocker + Verapamil oder Diltiazem: Hohes Risiko für AV-Block und gefährliche Verlangsamung des Herzschlags. Nur in Ausnahmefällen unter Kontrolle.'},
+  {g:['BB','Zentral'],sev:'warning', txt:'Betablocker + zentrales Antihypertensivum (z.B. Moxonidin, Clonidin): Verstärkte Herzfrequenzsenkung. Beim Absetzen von Clonidin Rebound-Hypertonie möglich.'},
+  {g:['Alpha','BB'],  sev:'warning', txt:'Alphablocker + Betablocker: Verstärkte Blutdrucksenkung, insbesondere bei der ersten Einnahme (Erste-Dosis-Hypotonie).'},
+  {g:['Thiazid','Schleife'], sev:'warning', txt:'Zwei verschiedene Diuretika: Verstärkte Entwässerung mit Risiko für Kaliummangel und Elektrolytentgleisungen.'},
+  {g:['RAAS','RAAS'], sev:'danger',  txt:'Zwei RAAS-aktive Substanzen: Erhöhtes Risiko für Nierenfunktionsstörungen und Kaliumanstieg. Mit Arzt besprechen.'},
+];
+
+function checkInteractions() {
+  const allGroups = meds.flatMap(m => {
+    const found = MED_DB.find(d => d.name.toLowerCase() === m.name.toLowerCase());
+    return found ? medGroup(found.cls) : [];
+  });
+  const groupSet = new Set(allGroups);
+  const hits = [];
+  for (const rule of IA_RULES) {
+    const matched = rule.g.filter(g => groupSet.has(g));
+    if (matched.length >= 2) {
+      // avoid duplicates
+      const key = rule.g.sort().join('|');
+      if (!hits.find(h => h.key === key)) hits.push({...rule, key});
+    }
+  }
+  return hits;
+}
+
+function renderMeds() {
+  const list = document.getElementById('med-list'), empty = document.getElementById('med-empty');
+  if (!meds.length) { list.innerHTML = '<div class="empty" id="med-empty">Noch keine Medikamente eingetragen.</div>'; }
+  else {
+    list.innerHTML = meds.map((m,i) => {
+      const found = MED_DB.find(d => d.name.toLowerCase() === m.name.toLowerCase());
+      const cls = found ? found.cls : 'Unbekannt / Sonstiges';
+      return `<div class="med-entry">
+        <div class="med-info">
+          <div class="med-name">${m.name}</div>
+          <div class="med-cls">${cls}</div>
+          ${m.dose||m.freq ? `<div class="med-dose">${[m.dose,m.freq].filter(Boolean).join(' · ')}</div>` : ''}
+        </div>
+        <button class="med-del" onclick="delMed(${i})">×</button>
+      </div>`;
+    }).join('');
+  }
+  // Interactions
+  const ia = checkInteractions();
+  const wrap = document.getElementById('ia-wrap');
+  if (!ia.length) { wrap.innerHTML=''; return; }
+  wrap.innerHTML = `<div class="card-lbl" style="margin-bottom:.4rem">⚠️ Mögliche Wechselwirkungen</div>` +
+    ia.map(r => `<div class="ia ${r.sev}">
+      <div class="ia-head">
+        <span class="ia-icon">${r.sev==='danger'?'🚨':'⚡'}</span>
+        <span class="ia-label">${r.sev==='danger'?'Wichtiger Hinweis':'Hinweis'}</span>
+      </div>
+      <div class="ia-text">${r.txt}</div>
+    </div>`).join('') +
+    '<div style="font-size:11px;color:var(--tx3);margin-bottom:10px;padding:0 .2rem">👨‍⚕️ Bitte besprechen Sie diese Kombination mit Ihrem Arzt oder Apotheker.</div>';
+}
+
+/* Med search */
+let selectedMed = null;
+function medSearch() {
+  const q = document.getElementById('med-input').value.toLowerCase().trim();
+  const sugg = document.getElementById('med-sugg');
+  selectedMed = null;
+  if (!q || q.length < 2) { sugg.style.display='none'; return; }
+  const hits = MED_DB.filter(m => m.name.toLowerCase().includes(q)).slice(0,8);
+  if (!hits.length) { sugg.style.display='none'; return; }
+  sugg.style.display='block';
+  sugg.innerHTML = hits.map(m =>
+    `<div class="med-sug-item" onclick="selectMed('${m.name}','${m.cls}')">
+      <div>${m.name}</div><div class="med-sug-cls">${m.cls}</div>
+    </div>`).join('');
+}
+function selectMed(name, cls) {
+  document.getElementById('med-input').value = name;
+  document.getElementById('med-sugg').style.display = 'none';
+  selectedMed = { name, cls };
+}
+function addMed() {
+  const name = document.getElementById('med-input').value.trim();
+  if (!name) return;
+  const dose = document.getElementById('med-dose').value.trim();
+  const freq = document.getElementById('med-freq').value;
+  if (meds.find(m => m.name.toLowerCase() === name.toLowerCase())) { alert('Bereits in der Liste.'); return; }
+  meds.push({ name, dose, freq });
+  persistMeds();
+  document.getElementById('med-input').value = '';
+  document.getElementById('med-dose').value = '';
+  document.getElementById('med-sugg').style.display = 'none';
+  selectedMed = null;
+  renderMeds();
+}
+function delMed(i) {
+  if (!confirm(`"${meds[i].name}" entfernen?`)) return;
+  meds.splice(i,1); persistMeds(); renderMeds();
+}
+
+// Close suggestions on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('#med-input') && !e.target.closest('#med-sugg'))
+    document.getElementById('med-sugg').style.display='none';
+});
+
+/* ════ NAVIGATION ════ */
+const VIEWS = ['dash','input','chart','list','meds'];
 function goTo(name, idx) {
-  VIEWS.forEach((v,i)=>{
+  VIEWS.forEach((v,i) => {
     document.getElementById(`v-${v}`).classList.toggle('active',i===idx);
     document.getElementById(`nb${i}`).classList.toggle('on',i===idx);
   });
-  current=idx;
-  if(name==='chart')buildCharts();
+  if(name==='chart') buildCharts();
 }
 
-/* ── REFRESH ── */
-function refreshAll(){refreshDash();renderList();}
+/* ════ REFRESH ════ */
+function refreshAll() { refreshDash(); renderList(); renderMeds(); }
 
-/* ── INIT ── */
-if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
-initForm();load();
+/* ════ INIT ════ */
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+initForm(); load();
 </script>
 </body>
 </html>
