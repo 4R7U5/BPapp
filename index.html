@@ -600,70 +600,255 @@ function importJSON(input){
 
 /* ════ MEDICATIONS DATABASE ════ */
 const MED_DB = [
+  // ── Blutdruckmittel ──────────────────────────────────────────
   // ACE-Hemmer
   {name:'Ramipril',cls:'ACE-Hemmer'},{name:'Lisinopril',cls:'ACE-Hemmer'},
   {name:'Enalapril',cls:'ACE-Hemmer'},{name:'Perindopril',cls:'ACE-Hemmer'},
   {name:'Quinapril',cls:'ACE-Hemmer'},{name:'Fosinopril',cls:'ACE-Hemmer'},
   {name:'Captopril',cls:'ACE-Hemmer'},{name:'Trandolapril',cls:'ACE-Hemmer'},
-  // Sartane
+  {name:'Benazepril',cls:'ACE-Hemmer'},{name:'Zofenopril',cls:'ACE-Hemmer'},
+  // Sartane (AT1-Antagonisten)
   {name:'Valsartan',cls:'Sartan (AT1-Antagonist)'},{name:'Losartan',cls:'Sartan (AT1-Antagonist)'},
   {name:'Candesartan',cls:'Sartan (AT1-Antagonist)'},{name:'Olmesartan',cls:'Sartan (AT1-Antagonist)'},
   {name:'Telmisartan',cls:'Sartan (AT1-Antagonist)'},{name:'Irbesartan',cls:'Sartan (AT1-Antagonist)'},
-  {name:'Azilsartan',cls:'Sartan (AT1-Antagonist)'},
+  {name:'Azilsartan',cls:'Sartan (AT1-Antagonist)'},{name:'Eprosartan',cls:'Sartan (AT1-Antagonist)'},
   // Kalziumantagonisten DHP
   {name:'Amlodipin',cls:'Kalziumantagonist (DHP)'},{name:'Lercanidipin',cls:'Kalziumantagonist (DHP)'},
   {name:'Felodipin',cls:'Kalziumantagonist (DHP)'},{name:'Nifedipin',cls:'Kalziumantagonist (DHP)'},
-  {name:'Nitrendipin',cls:'Kalziumantagonist (DHP)'},
+  {name:'Nitrendipin',cls:'Kalziumantagonist (DHP)'},{name:'Lacidipin',cls:'Kalziumantagonist (DHP)'},
   // Kalziumantagonisten Non-DHP
   {name:'Verapamil',cls:'Kalziumantagonist (Non-DHP)'},{name:'Diltiazem',cls:'Kalziumantagonist (Non-DHP)'},
   // Betablocker
   {name:'Bisoprolol',cls:'Betablocker'},{name:'Metoprolol',cls:'Betablocker'},
   {name:'Nebivolol',cls:'Betablocker'},{name:'Atenolol',cls:'Betablocker'},
   {name:'Carvedilol',cls:'Betablocker'},{name:'Propranolol',cls:'Betablocker'},
+  {name:'Sotalol',cls:'Betablocker'},{name:'Acebutolol',cls:'Betablocker'},
   // Thiaziddiuretika
-  {name:'Hydrochlorothiazid (HCT)',cls:'Thiaziddiuretikum'},{name:'Indapamid',cls:'Thiaziddiuretikum'},
-  {name:'Chlortalidon',cls:'Thiaziddiuretikum'},{name:'Xipamid',cls:'Thiaziddiuretikum'},
+  {name:'Hydrochlorothiazid',cls:'Thiaziddiuretikum'},{name:'HCT',cls:'Thiaziddiuretikum'},
+  {name:'Indapamid',cls:'Thiaziddiuretikum'},{name:'Chlortalidon',cls:'Thiaziddiuretikum'},
+  {name:'Xipamid',cls:'Thiaziddiuretikum'},{name:'Metolazon',cls:'Thiaziddiuretikum'},
   // Schleifendiuretika
   {name:'Torasemid',cls:'Schleifendiuretikum'},{name:'Furosemid',cls:'Schleifendiuretikum'},
-  {name:'Piretanid',cls:'Schleifendiuretikum'},
+  {name:'Piretanid',cls:'Schleifendiuretikum'},{name:'Bumetanid',cls:'Schleifendiuretikum'},
   // Kaliumsparende Diuretika
   {name:'Spironolacton',cls:'Kaliumsparendes Diuretikum'},{name:'Eplerenon',cls:'Kaliumsparendes Diuretikum'},
-  {name:'Amilorid',cls:'Kaliumsparendes Diuretikum'},
+  {name:'Amilorid',cls:'Kaliumsparendes Diuretikum'},{name:'Triamteren',cls:'Kaliumsparendes Diuretikum'},
+  {name:'Finerenon',cls:'Kaliumsparendes Diuretikum'},
   // Alphablocker
   {name:'Doxazosin',cls:'Alphablocker'},{name:'Urapidil',cls:'Alphablocker'},{name:'Prazosin',cls:'Alphablocker'},
+  {name:'Terazosin',cls:'Alphablocker'},
   // Zentral wirkend
   {name:'Moxonidin',cls:'Zentral wirkend'},{name:'Clonidin',cls:'Zentral wirkend'},{name:'Methyldopa',cls:'Zentral wirkend'},
+  {name:'Rilmenidin',cls:'Zentral wirkend'},
   // Renin-Inhibitor
   {name:'Aliskiren',cls:'Renin-Inhibitor'},
   // Vasodilatatoren
   {name:'Hydralazin',cls:'Vasodilatator'},{name:'Minoxidil',cls:'Vasodilatator'},
+  // Sacubitril/Valsartan
+  {name:'Sacubitril/Valsartan',cls:'Sartan (AT1-Antagonist)'},{name:'Entresto',cls:'Sartan (AT1-Antagonist)'},
+
+  // ── Antidepressiva ───────────────────────────────────────────
+  // SSRIs
+  {name:'Fluoxetin',cls:'SSRI'},{name:'Sertralin',cls:'SSRI'},
+  {name:'Citalopram',cls:'SSRI'},{name:'Escitalopram',cls:'SSRI'},
+  {name:'Paroxetin',cls:'SSRI'},{name:'Fluvoxamin',cls:'SSRI'},
+  // SNRIs
+  {name:'Venlafaxin',cls:'SNRI'},{name:'Duloxetin',cls:'SNRI'},
+  {name:'Milnacipran',cls:'SNRI'},{name:'Desvenlafaxin',cls:'SNRI'},
+  // Trizyklische Antidepressiva (TCA)
+  {name:'Amitriptylin',cls:'Trizyklisches Antidepressivum'},{name:'Nortriptylin',cls:'Trizyklisches Antidepressivum'},
+  {name:'Imipramin',cls:'Trizyklisches Antidepressivum'},{name:'Clomipramin',cls:'Trizyklisches Antidepressivum'},
+  {name:'Doxepin',cls:'Trizyklisches Antidepressivum'},{name:'Trimipramin',cls:'Trizyklisches Antidepressivum'},
+  {name:'Maprotilin',cls:'Trizyklisches Antidepressivum'},{name:'Opipramol',cls:'Trizyklisches Antidepressivum'},
+  // MAO-Hemmer
+  {name:'Tranylcypromin',cls:'MAO-Hemmer'},{name:'Phenelzin',cls:'MAO-Hemmer'},
+  {name:'Moclobemid',cls:'MAO-Hemmer'},{name:'Selegilin',cls:'MAO-Hemmer'},
+  {name:'Rasagilin',cls:'MAO-Hemmer'},{name:'Safinamid',cls:'MAO-Hemmer'},
+  // Sonstige Antidepressiva
+  {name:'Mirtazapin',cls:'Sonstiges Antidepressivum'},{name:'Trazodon',cls:'Sonstiges Antidepressivum'},
+  {name:'Agomelatin',cls:'Sonstiges Antidepressivum'},{name:'Vortioxetin',cls:'Sonstiges Antidepressivum'},
+  {name:'Reboxetin',cls:'Sonstiges Antidepressivum'},{name:'Lithium',cls:'Sonstiges Antidepressivum'},
+  // Bupropion (eigene Klasse wegen MAOI-Risiko)
+  {name:'Bupropion',cls:'Bupropion'},{name:'Elontril',cls:'Bupropion'},
+  {name:'Wellbutrin',cls:'Bupropion'},
+
+  // ── Schilddrüse ──────────────────────────────────────────────
+  {name:'Levothyroxin',cls:'Schilddrüsenhormon'},{name:'L-Thyroxin',cls:'Schilddrüsenhormon'},
+  {name:'Liothyronin',cls:'Schilddrüsenhormon'},{name:'Euthyrox',cls:'Schilddrüsenhormon'},
+  {name:'Thybon',cls:'Schilddrüsenhormon'},{name:'Berlthyrox',cls:'Schilddrüsenhormon'},
+  {name:'Thiamazol',cls:'Thyreostatikum'},{name:'Carbimazol',cls:'Thyreostatikum'},
+  {name:'Propylthiouracil',cls:'Thyreostatikum'},{name:'Methimazol',cls:'Thyreostatikum'},
+
+  // ── ADHS ─────────────────────────────────────────────────────
+  // Stimulanzien
+  {name:'Methylphenidat',cls:'Stimulans (ADHS)'},{name:'Ritalin',cls:'Stimulans (ADHS)'},
+  {name:'Concerta',cls:'Stimulans (ADHS)'},{name:'Medikinet',cls:'Stimulans (ADHS)'},
+  {name:'Equasym',cls:'Stimulans (ADHS)'},{name:'Elvanse',cls:'Stimulans (ADHS)'},
+  {name:'Lisdexamfetamin',cls:'Stimulans (ADHS)'},{name:'Vyvanse',cls:'Stimulans (ADHS)'},
+  {name:'Dexamfetamin',cls:'Stimulans (ADHS)'},{name:'Attentin',cls:'Stimulans (ADHS)'},
+  // Nicht-Stimulanzien
+  {name:'Atomoxetin',cls:'Selektiver NRI (ADHS)'},{name:'Strattera',cls:'Selektiver NRI (ADHS)'},
+  {name:'Guanfacin',cls:'Alpha-2-Agonist (ADHS)'},{name:'Intuniv',cls:'Alpha-2-Agonist (ADHS)'},
+  {name:'Clonidin (ADHS)',cls:'Alpha-2-Agonist (ADHS)'},
+  {name:'Viloxazin',cls:'Selektiver NRI (ADHS)'},
+
+  // ── Cholesterin / Lipide ──────────────────────────────────────
+  // Statine
+  {name:'Atorvastatin',cls:'Statin'},{name:'Rosuvastatin',cls:'Statin'},
+  {name:'Simvastatin',cls:'Statin'},{name:'Pravastatin',cls:'Statin'},
+  {name:'Fluvastatin',cls:'Statin'},{name:'Lovastatin',cls:'Statin'},
+  {name:'Pitavastatin',cls:'Statin'},{name:'Cerivastatin',cls:'Statin'},
+  // Fibrate
+  {name:'Fenofibrat',cls:'Fibrat'},{name:'Bezafibrat',cls:'Fibrat'},
+  {name:'Gemfibrozil',cls:'Fibrat'},{name:'Ciprofibrat',cls:'Fibrat'},
+  // Cholesterinresorptionshemmer
+  {name:'Ezetimib',cls:'Ezetimib'},{name:'Ezetrol',cls:'Ezetimib'},
+  // PCSK9-Inhibitoren
+  {name:'Evolocumab',cls:'PCSK9-Inhibitor'},{name:'Repatha',cls:'PCSK9-Inhibitor'},
+  {name:'Alirocumab',cls:'PCSK9-Inhibitor'},{name:'Praluent',cls:'PCSK9-Inhibitor'},
+  {name:'Inclisiran',cls:'PCSK9-Inhibitor'},
+  // Gallensäurebinder
+  {name:'Colestyramin',cls:'Gallensäurebinder'},{name:'Colesevelam',cls:'Gallensäurebinder'},
+  {name:'Colestipol',cls:'Gallensäurebinder'},
+  // Sonstige Lipidsenker
+  {name:'Bempedoinsäure',cls:'Sonstiger Lipidsenker'},{name:'Nilemdo',cls:'Sonstiger Lipidsenker'},
+  {name:'Niacin',cls:'Sonstiger Lipidsenker'},{name:'Omega-3-Fettsäuren',cls:'Sonstiger Lipidsenker'},
+
+  // ── Diabetes ──────────────────────────────────────────────────
+  // Biguanide
+  {name:'Metformin',cls:'Biguanid (Diabetes)'},{name:'Glucophage',cls:'Biguanid (Diabetes)'},
+  {name:'Siofor',cls:'Biguanid (Diabetes)'},
+  // Sulfonylharnstoffe
+  {name:'Glibenclamid',cls:'Sulfonylharnstoff'},{name:'Glimepirid',cls:'Sulfonylharnstoff'},
+  {name:'Glipizid',cls:'Sulfonylharnstoff'},{name:'Gliclazid',cls:'Sulfonylharnstoff'},
+  {name:'Tolbutamid',cls:'Sulfonylharnstoff'},
+  // DPP-4-Hemmer (Gliptine)
+  {name:'Sitagliptin',cls:'DPP-4-Hemmer'},{name:'Saxagliptin',cls:'DPP-4-Hemmer'},
+  {name:'Alogliptin',cls:'DPP-4-Hemmer'},{name:'Linagliptin',cls:'DPP-4-Hemmer'},
+  {name:'Vildagliptin',cls:'DPP-4-Hemmer'},{name:'Trelagliptin',cls:'DPP-4-Hemmer'},
+  // SGLT2-Hemmer (Gliflozine)
+  {name:'Dapagliflozin',cls:'SGLT2-Hemmer'},{name:'Empagliflozin',cls:'SGLT2-Hemmer'},
+  {name:'Canagliflozin',cls:'SGLT2-Hemmer'},{name:'Ertugliflozin',cls:'SGLT2-Hemmer'},
+  {name:'Forxiga',cls:'SGLT2-Hemmer'},{name:'Jardiance',cls:'SGLT2-Hemmer'},
+  // GLP-1-Agonisten
+  {name:'Semaglutid',cls:'GLP-1-Agonist'},{name:'Ozempic',cls:'GLP-1-Agonist'},
+  {name:'Wegovy',cls:'GLP-1-Agonist'},{name:'Liraglutid',cls:'GLP-1-Agonist'},
+  {name:'Victoza',cls:'GLP-1-Agonist'},{name:'Dulaglutid',cls:'GLP-1-Agonist'},
+  {name:'Trulicity',cls:'GLP-1-Agonist'},{name:'Exenatid',cls:'GLP-1-Agonist'},
+  {name:'Tirzepatid',cls:'GLP-1-Agonist'},{name:'Mounjaro',cls:'GLP-1-Agonist'},
+  {name:'Lixisenatid',cls:'GLP-1-Agonist'},
+  // Insulin
+  {name:'Insulin glargin',cls:'Insulin'},{name:'Lantus',cls:'Insulin'},
+  {name:'Toujeo',cls:'Insulin'},{name:'Insulin detemir',cls:'Insulin'},
+  {name:'Levemir',cls:'Insulin'},{name:'Insulin degludec',cls:'Insulin'},
+  {name:'Tresiba',cls:'Insulin'},{name:'Insulin aspart',cls:'Insulin'},
+  {name:'Novorapid',cls:'Insulin'},{name:'Insulin lispro',cls:'Insulin'},
+  {name:'Humalog',cls:'Insulin'},{name:'Insulin glulisin',cls:'Insulin'},
+  {name:'Apidra',cls:'Insulin'},{name:'Humaninsulin',cls:'Insulin'},
+  {name:'Actrapid',cls:'Insulin'},{name:'Huminsulin',cls:'Insulin'},
+  // Glitazone
+  {name:'Pioglitazon',cls:'Glitazon'},{name:'Actos',cls:'Glitazon'},
+  // Alpha-Glucosidasehemmer
+  {name:'Acarbose',cls:'Alpha-Glucosidasehemmer'},{name:'Glucobay',cls:'Alpha-Glucosidasehemmer'},
+  {name:'Miglitol',cls:'Alpha-Glucosidasehemmer'},
+  // Glinide
+  {name:'Repaglinid',cls:'Glinid'},{name:'Nateglinid',cls:'Glinid'},
 ];
 
 function medGroup(cls) {
-  if(cls==='ACE-Hemmer') return ['RAAS','ACE'];
-  if(cls.startsWith('Sartan')) return ['RAAS','ARB'];
-  if(cls==='Renin-Inhibitor') return ['RAAS','RI'];
-  if(cls==='Kalziumantagonist (Non-DHP)') return ['NonDHP'];
-  if(cls==='Betablocker') return ['BB'];
-  if(cls==='Kaliumsparendes Diuretikum') return ['KSD'];
-  if(cls==='Thiaziddiuretikum') return ['Thiazid'];
-  if(cls==='Schleifendiuretikum') return ['Schleife'];
-  if(cls==='Alphablocker') return ['Alpha'];
-  if(cls==='Zentral wirkend') return ['Zentral'];
+  // Blutdruck
+  if(cls==='ACE-Hemmer')                    return ['RAAS','ACE'];
+  if(cls.startsWith('Sartan'))              return ['RAAS','ARB'];
+  if(cls==='Renin-Inhibitor')               return ['RAAS','RI'];
+  if(cls==='Kalziumantagonist (Non-DHP)')   return ['NonDHP'];
+  if(cls==='Betablocker')                   return ['BB'];
+  if(cls==='Kaliumsparendes Diuretikum')    return ['KSD'];
+  if(cls==='Thiaziddiuretikum')             return ['Thiazid','Diuretikum'];
+  if(cls==='Schleifendiuretikum')           return ['Schleife','Diuretikum'];
+  if(cls==='Alphablocker')                  return ['Alpha'];
+  if(cls==='Zentral wirkend')               return ['Zentral'];
+  // Antidepressiva
+  if(cls==='SSRI')                          return ['SSRI','AD'];
+  if(cls==='SNRI')                          return ['SNRI','AD'];
+  if(cls==='Trizyklisches Antidepressivum') return ['TCA','AD'];
+  if(cls==='MAO-Hemmer')                    return ['MAOI'];
+  if(cls==='Bupropion')                     return ['Bupropion','AD'];
+  if(cls==='Sonstiges Antidepressivum')     return ['AD'];
+  // Schilddrüse
+  if(cls==='Schilddrüsenhormon')            return ['LT4'];
+  if(cls==='Thyreostatikum')                return ['Thyreostatikum'];
+  // ADHS
+  if(cls==='Stimulans (ADHS)')              return ['Stimulans'];
+  if(cls==='Selektiver NRI (ADHS)')         return ['NRI-ADHS'];
+  if(cls==='Alpha-2-Agonist (ADHS)')        return ['Alpha2-ADHS','BB-like'];
+  // Cholesterin
+  if(cls==='Statin')                        return ['Statin'];
+  if(cls==='Fibrat')                        return ['Fibrat'];
+  if(cls==='Gallensäurebinder')             return ['Gallensäure'];
+  if(cls==='Ezetimib')                      return ['Ezetimib'];
+  if(cls==='PCSK9-Inhibitor')               return ['PCSK9'];
+  if(cls==='Sonstiger Lipidsenker')         return ['Lipid'];
+  // Diabetes
+  if(cls==='Biguanid (Diabetes)')           return ['Metformin'];
+  if(cls==='Sulfonylharnstoff')             return ['SH','Hypoglykämierisiko'];
+  if(cls==='DPP-4-Hemmer')                  return ['DPP4'];
+  if(cls==='SGLT2-Hemmer')                  return ['SGLT2'];
+  if(cls==='GLP-1-Agonist')                 return ['GLP1'];
+  if(cls==='Insulin')                       return ['Insulin','Hypoglykämierisiko'];
+  if(cls==='Glitazon')                      return ['Glitazon'];
+  if(cls==='Glinid')                        return ['Glinid','Hypoglykämierisiko'];
   return [];
 }
 
 const IA_RULES = [
-  {g:['ACE','ARB'],   sev:'danger',  txt:'ACE-Hemmer + Sartan (duale RAAS-Blockade): Erhöhtes Risiko für Nierenversagen, Hyperkaliämie und Blutdruckabfall. Kombination nur unter engmaschiger ärztlicher Kontrolle.'},
-  {g:['ACE','RI'],    sev:'danger',  txt:'ACE-Hemmer + Aliskiren: Dreifache RAAS-Blockade — sehr hohes Risiko für Nierenschäden und gefährlichen Kaliumanstieg.'},
-  {g:['ARB','RI'],    sev:'danger',  txt:'Sartan + Aliskiren: Dreifache RAAS-Blockade — sehr hohes Risiko für Nierenschäden und Hyperkaliämie.'},
-  {g:['ACE','KSD'],   sev:'danger',  txt:'ACE-Hemmer + Kaliumsparendes Diuretikum: Risiko für gefährlich erhöhten Kaliumspiegel (Hyperkaliämie).'},
-  {g:['ARB','KSD'],   sev:'danger',  txt:'Sartan + Kaliumsparendes Diuretikum: Risiko für gefährlich erhöhten Kaliumspiegel (Hyperkaliämie).'},
-  {g:['BB','NonDHP'], sev:'danger',  txt:'Betablocker + Verapamil oder Diltiazem: Hohes Risiko für AV-Block und gefährliche Verlangsamung des Herzschlags. Nur in Ausnahmefällen unter Kontrolle.'},
-  {g:['BB','Zentral'],sev:'warning', txt:'Betablocker + zentrales Antihypertensivum (z.B. Moxonidin, Clonidin): Verstärkte Herzfrequenzsenkung. Beim Absetzen von Clonidin Rebound-Hypertonie möglich.'},
-  {g:['Alpha','BB'],  sev:'warning', txt:'Alphablocker + Betablocker: Verstärkte Blutdrucksenkung, insbesondere bei der ersten Einnahme (Erste-Dosis-Hypotonie).'},
+  // ── Blutdruck (bestehend) ────────────────────────────────────
+  {g:['ACE','ARB'],      sev:'danger',  txt:'ACE-Hemmer + Sartan (duale RAAS-Blockade): Erhöhtes Risiko für Nierenversagen, Hyperkaliämie und Blutdruckabfall. Kombination nur unter engmaschiger ärztlicher Kontrolle.'},
+  {g:['ACE','RI'],       sev:'danger',  txt:'ACE-Hemmer + Aliskiren: Dreifache RAAS-Blockade — sehr hohes Risiko für Nierenschäden und gefährlichen Kaliumanstieg.'},
+  {g:['ARB','RI'],       sev:'danger',  txt:'Sartan + Aliskiren: Dreifache RAAS-Blockade — sehr hohes Risiko für Nierenschäden und Hyperkaliämie.'},
+  {g:['ACE','KSD'],      sev:'danger',  txt:'ACE-Hemmer + Kaliumsparendes Diuretikum: Risiko für gefährlich erhöhten Kaliumspiegel (Hyperkaliämie).'},
+  {g:['ARB','KSD'],      sev:'danger',  txt:'Sartan + Kaliumsparendes Diuretikum: Risiko für gefährlich erhöhten Kaliumspiegel (Hyperkaliämie).'},
+  {g:['BB','NonDHP'],    sev:'danger',  txt:'Betablocker + Verapamil oder Diltiazem: Hohes Risiko für AV-Block und gefährliche Verlangsamung des Herzschlags. Nur in Ausnahmefällen unter ärztlicher Kontrolle.'},
+  {g:['BB','Zentral'],   sev:'warning', txt:'Betablocker + zentrales Antihypertensivum (Moxonidin, Clonidin): Verstärkte Herzfrequenzsenkung. Beim Absetzen von Clonidin Rebound-Hypertonie möglich.'},
+  {g:['Alpha','BB'],     sev:'warning', txt:'Alphablocker + Betablocker: Verstärkte Blutdrucksenkung, insbesondere bei der ersten Einnahme (Erste-Dosis-Hypotonie).'},
   {g:['Thiazid','Schleife'], sev:'warning', txt:'Zwei verschiedene Diuretika: Verstärkte Entwässerung mit Risiko für Kaliummangel und Elektrolytentgleisungen.'},
-  {g:['RAAS','RAAS'], sev:'danger',  txt:'Zwei RAAS-aktive Substanzen: Erhöhtes Risiko für Nierenfunktionsstörungen und Kaliumanstieg. Mit Arzt besprechen.'},
+  {g:['RAAS','RAAS'],    sev:'danger',  txt:'Zwei RAAS-aktive Substanzen: Erhöhtes Risiko für Nierenfunktionsstörungen und Kaliumanstieg. Mit Arzt besprechen.'},
+
+  // ── Antidepressiva ───────────────────────────────────────────
+  {g:['SSRI','MAOI'],    sev:'danger',  txt:'SSRI + MAO-Hemmer: Sehr hohes Risiko für lebensbedrohliches Serotonin-Syndrom (Verwirrtheit, Fieber, Muskelzuckungen, Herzrasen). Diese Kombination ist kontraindiziert. Zwischen den Substanzen ist eine Auswaschphase von mindestens 2 Wochen einzuhalten.'},
+  {g:['SNRI','MAOI'],    sev:'danger',  txt:'SNRI + MAO-Hemmer: Sehr hohes Risiko für Serotonin-Syndrom. Absolute Kontraindikation — unbedingt mit Arzt besprechen.'},
+  {g:['TCA','MAOI'],     sev:'danger',  txt:'Trizyklisches Antidepressivum + MAO-Hemmer: Hohes Risiko für Serotonin-Syndrom und hypertensive Krisen. Kontraindiziert.'},
+  {g:['Bupropion','MAOI'],sev:'danger', txt:'Bupropion + MAO-Hemmer: Risiko für schwere Blutdruckkrisen und zentralnervöse Toxizität. Kontraindiziert — Auswaschphase von mindestens 14 Tagen erforderlich.'},
+  {g:['Stimulans','MAOI'],sev:'danger', txt:'Stimulanzien (Methylphenidat, Lisdexamfetamin) + MAO-Hemmer: Sehr hohes Risiko für hypertensive Krisen und Serotonin-Syndrom. Absolute Kontraindikation.'},
+  {g:['NRI-ADHS','MAOI'],sev:'danger',  txt:'Atomoxetin + MAO-Hemmer: Schwere Wechselwirkung mit Risiko für Blutdruckkrise und Serotonin-Syndrom. Kontraindiziert.'},
+  {g:['SSRI','TCA'],     sev:'warning', txt:'SSRI + Trizyklisches Antidepressivum: SSRIs (besonders Fluoxetin, Paroxetin) hemmen den Abbau von TCAs und können deren Spiegel gefährlich erhöhen. Ärztliche Überwachung notwendig.'},
+  {g:['SNRI','TCA'],     sev:'warning', txt:'SNRI + Trizyklisches Antidepressivum: Erhöhtes Risiko für Serotonin-Syndrom und TCA-Toxizität. Kombination nur unter Kontrolle.'},
+  {g:['TCA','Alpha'],    sev:'warning', txt:'Trizyklisches Antidepressivum + Alphablocker: Verstärkte Blutdrucksenkung und erhöhtes Risiko für orthostatische Hypotonie (Schwindel beim Aufstehen).'},
+  {g:['TCA','BB'],       sev:'warning', txt:'Trizyklisches Antidepressivum + Betablocker: Gegenseitige Beeinflussung des Abbaus (CYP2D6). Manche TCAs verstärken antiarrhythmische Effekte. Engmaschige Kontrolle.'},
+
+  // ── ADHS ─────────────────────────────────────────────────────
+  {g:['Stimulans','BB'],     sev:'warning', txt:'Stimulanzien (Methylphenidat, Amphetamine) + Betablocker: Stimulanzien erhöhen Blutdruck und Herzfrequenz — Betablocker können diesen Effekt teilweise aufheben, die Kombination erfordert ärztliche Überwachung.'},
+  {g:['Stimulans','SSRI'],   sev:'warning', txt:'Stimulanzien + SSRI: Mögliches erhöhtes Risiko für serotonerge Effekte und Herzrhythmusstörungen. Kombination nur unter ärztlicher Kontrolle.'},
+  {g:['Alpha2-ADHS','BB'],   sev:'warning', txt:'Guanfacin/Clonidin (ADHS) + Betablocker: Additive herzfrequenzsenkende Wirkung. Mögliches Risiko für Bradykardie und Blutdruckabfall.'},
+  {g:['NRI-ADHS','SSRI'],    sev:'warning', txt:'Atomoxetin + SSRI (besonders Fluoxetin/Paroxetin): SSRIs hemmen den Abbau von Atomoxetin stark und erhöhen dessen Spiegel erheblich. Dosisanpassung notwendig.'},
+
+  // ── Schilddrüse ──────────────────────────────────────────────
+  {g:['LT4','Gallensäure'],  sev:'danger',  txt:'Levothyroxin + Gallensäurebinder (Colestyramin, Colesevelam): Gallensäurebinder verhindern die Aufnahme von Levothyroxin erheblich. Einnahme mindestens 4–6 Stunden zeitversetzt.'},
+  {g:['LT4','BB'],           sev:'warning', txt:'Levothyroxin + Betablocker: Betablocker können die Umwandlung von T4 in das aktive T3 hemmen und Symptome einer Schilddrüsenüberfunktion maskieren. Engmaschige Schilddrüsenkontrollen empfohlen.'},
+  {g:['Thyreostatikum','ACE'],sev:'warning',txt:'Thyreostatika + ACE-Hemmer: Beide Substanzklassen können in seltenen Fällen Agranulozytose (Abfall weißer Blutkörperchen) auslösen — das Risiko könnte additiv sein. Mit Arzt besprechen.'},
+
+  // ── Cholesterin ──────────────────────────────────────────────
+  {g:['Statin','Fibrat'],    sev:'danger',  txt:'Statin + Fibrat (besonders Gemfibrozil): Erhöhtes Risiko für schwere Muskelschäden (Myopathie, Rhabdomyolyse). Kombination möglichst vermeiden — falls nötig, nur unter regelmäßiger Kontrolle der Muskelwerte (CK).'},
+  {g:['Statin','NonDHP'],    sev:'warning', txt:'Statin + Verapamil oder Diltiazem: Kalziumantagonisten hemmen den Abbau von Simvastatin und Atorvastatin über CYP3A4 und können deren Spiegel stark erhöhen — Risiko für Muskelschäden steigt. Dosisanpassung des Statins erforderlich.'},
+  {g:['Gallensäure','LT4'],  sev:'danger',  txt:'Gallensäurebinder + Levothyroxin: Stark verminderte Aufnahme von Levothyroxin. Einnahme zeitlich trennen (mind. 4–6 Stunden Abstand).'},
+
+  // ── Diabetes ─────────────────────────────────────────────────
+  {g:['BB','Hypoglykämierisiko'], sev:'warning', txt:'Betablocker + Insulin oder Sulfonylharnstoff/Glinid: Betablocker können die Warnsymptome einer Unterzuckerung (Herzrasen, Zittern) maskieren und die Erholung vom Blutzuckerabfall verzögern. Sorgfältige Blutzuckerkontrolle notwendig.'},
+  {g:['SGLT2','Diuretikum'],  sev:'warning', txt:'SGLT2-Hemmer + Diuretikum (Thiazid oder Schleifendiuretikum): Kombinierte entwässernde Wirkung erhöht das Risiko für Dehydratation, Blutdruckabfall und Nierenfunktionsstörung. Flüssigkeitszufuhr und Nierenwerte kontrollieren.'},
+  {g:['SGLT2','RAAS'],        sev:'warning', txt:'SGLT2-Hemmer + ACE-Hemmer oder Sartan: Erhöhtes Risiko für Blutdruckabfall und Nierenfunktionsstörung durch additive Wirkung auf den Blutdruck. Regelmäßige Nierenwert- und Blutdruckkontrolle empfohlen.'},
+  {g:['Metformin','RAAS'],    sev:'warning', txt:'Metformin + ACE-Hemmer oder Sartan: Bei eingeschränkter Nierenfunktion kann diese Kombination das Risiko für Laktatazidose erhöhen. Regelmäßige Kontrolle der Nierenwerte (Kreatinin, GFR) wichtig.'},
+  {g:['Metformin','Diuretikum'],sev:'warning',txt:'Metformin + Diuretikum: Diuretika können die Nierenfunktion beeinflussen und so das Laktatazidose-Risiko unter Metformin erhöhen. Bei Erkrankungen oder Operationen Metformin ggf. pausieren.'},
+  {g:['Glitazon','Diuretikum'],sev:'warning',txt:'Pioglitazon + Diuretikum: Glitazone fördern Wassereinlagerungen — in Kombination mit Diuretika kann es zu unvorhersehbaren Flüssigkeitsverschiebungen kommen.'},
+  {g:['SH','SSRI'],           sev:'warning', txt:'Sulfonylharnstoff + SSRI: SSRIs können den Blutzucker beeinflussen und die Hypoglykämiegefahr unter Sulfonylharnstoffen möglicherweise erhöhen. Blutzuckerkontrollen engmaschiger durchführen.'},
 ];
 
 function checkInteractions() {
