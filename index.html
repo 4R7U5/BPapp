@@ -903,12 +903,13 @@ function renderMeds() {
 
 /* Med search */
 let selectedMed = null;
+function normalize(s){return s.toLowerCase().replace(/[-\s]/g,'');}
 function medSearch() {
-  const q = document.getElementById('med-input').value.toLowerCase().trim();
+  const q = normalize(document.getElementById('med-input').value.trim());
   const sugg = document.getElementById('med-sugg');
   selectedMed = null;
   if (!q || q.length < 2) { sugg.style.display='none'; return; }
-  const hits = MED_DB.filter(m => m.name.toLowerCase().includes(q)).slice(0,8);
+  const hits = MED_DB.filter(m => normalize(m.name).includes(q)).slice(0,8);
   if (!hits.length) { sugg.style.display='none'; return; }
   sugg.style.display='block';
   sugg.innerHTML = hits.map(m =>
