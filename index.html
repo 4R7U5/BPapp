@@ -321,15 +321,34 @@ input:focus,select:focus{outline:none;border-color:var(--tx);border-width:1.5px}
           <button class="med-add-btn" onclick="addMed()">+</button>
           <div class="med-suggestions" id="med-sugg"></div>
         </div>
-        <div class="row2" style="margin-bottom:14px">
-          <div class="fi"><label>Dosis</label><input type="text" id="med-dose" placeholder="z.B. 5 mg"></div>
+        <div class="row3" style="margin-bottom:10px">
+          <div class="fi"><label>Menge</label><input type="number" id="med-dose-val" placeholder="5" inputmode="decimal" min="0" step="any"></div>
+          <div class="fi"><label>Einheit</label>
+            <select id="med-dose-unit">
+              <option value="mg">mg</option>
+              <option value="µg">µg</option>
+              <option value="ml">ml</option>
+              <option value="IE">IE</option>
+              <option value="mmol">mmol</option>
+              <option value="g">g</option>
+              <option value="Tropfen">Tropfen</option>
+              <option value="Hub">Hub</option>
+              <option value="Pflaster">Pflaster</option>
+              <option value="Tbl.">Tbl.</option>
+              <option value="%">%</option>
+            </select>
+          </div>
           <div class="fi"><label>Einnahme</label>
             <select id="med-freq">
               <option value="1× täglich">1× täglich</option>
               <option value="2× täglich">2× täglich</option>
+              <option value="3× täglich">3× täglich</option>
               <option value="morgens">morgens</option>
+              <option value="mittags">mittags</option>
               <option value="abends">abends</option>
+              <option value="zur Nacht">zur Nacht</option>
               <option value="bei Bedarf">bei Bedarf</option>
+              <option value="wöchentlich">wöchentlich</option>
             </select>
           </div>
         </div>
@@ -753,6 +772,60 @@ const MED_DB = [
   {name:'Miglitol',cls:'Alpha-Glucosidasehemmer'},
   // Glinide
   {name:'Repaglinid',cls:'Glinid'},{name:'Nateglinid',cls:'Glinid'},
+
+  // ── Schmerzmittel ────────────────────────────────────────────────
+  // Paracetamol
+  {name:'Paracetamol',cls:'Paracetamol'},{name:'Ben-u-ron',cls:'Paracetamol'},
+  {name:'Paracetamol AbZ',cls:'Paracetamol'},{name:'Tylenol',cls:'Paracetamol'},
+  // Metamizol
+  {name:'Metamizol',cls:'Metamizol'},{name:'Novalgin',cls:'Metamizol'},
+  {name:'Novaminsulfon',cls:'Metamizol'},{name:'Berlosin',cls:'Metamizol'},
+  // NSAIDs (nicht-selektive COX-Hemmer)
+  {name:'Ibuprofen',cls:'NSAID'},{name:'Diclofenac',cls:'NSAID'},
+  {name:'Naproxen',cls:'NSAID'},{name:'Aspirin',cls:'NSAID'},
+  {name:'Acetylsalicylsäure',cls:'NSAID'},{name:'ASS',cls:'NSAID'},
+  {name:'Indometacin',cls:'NSAID'},{name:'Piroxicam',cls:'NSAID'},
+  {name:'Meloxicam',cls:'NSAID'},{name:'Ketoprofen',cls:'NSAID'},
+  {name:'Flurbiprofen',cls:'NSAID'},{name:'Acemetacin',cls:'NSAID'},
+  // COX-2-Hemmer (selektive NSAIDs)
+  {name:'Celecoxib',cls:'COX-2-Hemmer'},{name:'Etoricoxib',cls:'COX-2-Hemmer'},
+  {name:'Parecoxib',cls:'COX-2-Hemmer'},{name:'Arcoxia',cls:'COX-2-Hemmer'},
+  // Opioide
+  {name:'Tramadol',cls:'Opioid'},{name:'Tramal',cls:'Opioid'},
+  {name:'Tilidin',cls:'Opioid'},{name:'Valoron',cls:'Opioid'},
+  {name:'Codein',cls:'Opioid'},{name:'Morphin',cls:'Opioid'},
+  {name:'MST Continus',cls:'Opioid'},{name:'Oxycodon',cls:'Opioid'},
+  {name:'Oxygesic',cls:'Opioid'},{name:'Hydromorphon',cls:'Opioid'},
+  {name:'Palladon',cls:'Opioid'},{name:'Fentanyl',cls:'Opioid'},
+  {name:'Buprenorphin',cls:'Opioid'},{name:'Temgesic',cls:'Opioid'},
+  {name:'Tapentadol',cls:'Opioid'},{name:'Nucynta',cls:'Opioid'},
+  {name:'Methadon',cls:'Opioid'},{name:'Naloxon',cls:'Opioid-Antagonist'},
+  // Topische / sonstige Schmerzmittel
+  {name:'Pregabalin',cls:'Neuropathieschmerzmittel'},{name:'Lyrica',cls:'Neuropathieschmerzmittel'},
+  {name:'Gabapentin',cls:'Neuropathieschmerzmittel'},{name:'Neurontin',cls:'Neuropathieschmerzmittel'},
+
+  // ── Blutverdünner / Antikoagulantien ───────────────────────────────
+  // DOAK / NOAK (direkte orale Antikoagulantien)
+  {name:'Apixaban',cls:'DOAK'},{name:'Eliquis',cls:'DOAK'},
+  {name:'Rivaroxaban',cls:'DOAK'},{name:'Xarelto',cls:'DOAK'},
+  {name:'Dabigatran',cls:'DOAK'},{name:'Pradaxa',cls:'DOAK'},
+  {name:'Edoxaban',cls:'DOAK'},{name:'Lixiana',cls:'DOAK'},
+  // Vitamin-K-Antagonisten
+  {name:'Phenprocoumon',cls:'Vitamin-K-Antagonist'},{name:'Marcumar',cls:'Vitamin-K-Antagonist'},
+  {name:'Falithrom',cls:'Vitamin-K-Antagonist'},{name:'Warfarin',cls:'Vitamin-K-Antagonist'},
+  {name:'Coumadin',cls:'Vitamin-K-Antagonist'},{name:'Acenocoumarol',cls:'Vitamin-K-Antagonist'},
+  // Thrombozytenaggregationshemmer
+  {name:'Clopidogrel',cls:'Thrombozytenhemmer'},{name:'Plavix',cls:'Thrombozytenhemmer'},
+  {name:'Ticagrelor',cls:'Thrombozytenhemmer'},{name:'Brilique',cls:'Thrombozytenhemmer'},
+  {name:'Prasugrel',cls:'Thrombozytenhemmer'},{name:'Efient',cls:'Thrombozytenhemmer'},
+  {name:'Dipyridamol',cls:'Thrombozytenhemmer'},{name:'Aggrenox',cls:'Thrombozytenhemmer'},
+  {name:'ASS 100',cls:'Thrombozytenhemmer'},{name:'Aspirin Protect',cls:'Thrombozytenhemmer'},
+  // Heparine
+  {name:'Heparin',cls:'Heparin'},{name:'Enoxaparin',cls:'Heparin'},
+  {name:'Clexane',cls:'Heparin'},{name:'Certoparin',cls:'Heparin'},
+  {name:'Mono-Embolex',cls:'Heparin'},{name:'Fondaparinux',cls:'Heparin'},
+  {name:'Arixtra',cls:'Heparin'},{name:'Dalteparin',cls:'Heparin'},
+  {name:'Fragmin',cls:'Heparin'},
 ];
 
 function medGroup(cls) {
@@ -797,6 +870,19 @@ function medGroup(cls) {
   if(cls==='Insulin')                       return ['Insulin','Hypoglykämierisiko'];
   if(cls==='Glitazon')                      return ['Glitazon'];
   if(cls==='Glinid')                        return ['Glinid','Hypoglykämierisiko'];
+  // Schmerzmittel
+  if(cls==='Paracetamol')                   return ['Paracetamol'];
+  if(cls==='Metamizol')                     return ['Metamizol'];
+  if(cls==='NSAID')                         return ['NSAID'];
+  if(cls==='COX-2-Hemmer')                  return ['COX2','NSAID'];
+  if(cls==='Opioid')                        return ['Opioid'];
+  if(cls==='Opioid-Antagonist')             return ['OpioidAntag'];
+  if(cls==='Neuropathieschmerzmittel')      return ['Neuropathie'];
+  // Blutverdünner
+  if(cls==='DOAK')                          return ['DOAK','Antikoagulans'];
+  if(cls==='Vitamin-K-Antagonist')          return ['VKA','Antikoagulans'];
+  if(cls==='Thrombozytenhemmer')            return ['TAH'];
+  if(cls==='Heparin')                       return ['Heparin','Antikoagulans'];
   return [];
 }
 
@@ -849,40 +935,99 @@ const IA_RULES = [
   {g:['Metformin','Diuretikum'],sev:'warning',txt:'Metformin + Diuretikum: Diuretika können die Nierenfunktion beeinflussen und so das Laktatazidose-Risiko unter Metformin erhöhen. Bei Erkrankungen oder Operationen Metformin ggf. pausieren.'},
   {g:['Glitazon','Diuretikum'],sev:'warning',txt:'Pioglitazon + Diuretikum: Glitazone fördern Wassereinlagerungen — in Kombination mit Diuretika kann es zu unvorhersehbaren Flüssigkeitsverschiebungen kommen.'},
   {g:['SH','SSRI'],           sev:'warning', txt:'Sulfonylharnstoff + SSRI: SSRIs können den Blutzucker beeinflussen und die Hypoglykämiegefahr unter Sulfonylharnstoffen möglicherweise erhöhen. Blutzuckerkontrollen engmaschiger durchführen.'},
+
+  // ── Schmerzmittel ──────────────────────────────────────────
+  {g:['NSAID','Antikoagulans'],sev:'danger',  txt:'NSAID (Ibuprofen, Diclofenac, Naproxen) + Antikoagulans (DOAK, Marcumar, Heparin): Stark erhöhtes Blutungsrisiko, insbesondere im Magen-Darm-Trakt. Kombination möglichst vermeiden — wenn nötig, zusätzlich Magenschutz (PPI) und ärztliche Überwachung.'},
+  {g:['NSAID','TAH'],          sev:'danger',  txt:'NSAID + Thrombozytenhemmer (Clopidogrel, ASS, Ticagrelor): Additive Hemmung der Blutgerinnung mit deutlich erhöhtem Blutungsrisiko. Magenschutz empfohlen, ärztliche Kontrolle notwendig.'},
+  {g:['NSAID','RAAS'],         sev:'warning', txt:'NSAID + ACE-Hemmer oder Sartan: NSAIDs können die blutdrucksenkende Wirkung abschwächen und die Nierenfunktion verschlechtern. Nierenwerte und Blutdruck regelmäßig kontrollieren.'},
+  {g:['NSAID','Diuretikum'],   sev:'warning', txt:'NSAID + Diuretikum: NSAIDs können die entwdatssernde Wirkung von Diuretika abschwdatchen und Nierenfunktionsstörungen verursachen.'},
+  {g:['NSAID','KSD'],          sev:'warning', txt:'NSAID + Kaliumsparendes Diuretikum: Erhöhtes Risiko für Hyperkaliämie (zu viel Kalium im Blut). Nierenwerte und Kalium kontrollieren.'},
+  {g:['COX2','Antikoagulans'], sev:'warning', txt:'COX-2-Hemmer (Celecoxib, Etoricoxib) + Antikoagulans: Auch selektive COX-2-Hemmer erhöhen das Blutungsrisiko unter Antikoagulantien, wenn auch weniger stark als klassische NSAIDs. Ärztliche Überwachung.'},
+  {g:['Opioid','MAOI'],        sev:'danger',  txt:'Opioid + MAO-Hemmer: Hohes Risiko für Serotonin-Syndrom (besonders Tramadol, Pethidin), Atemdepression und hypertensive Krise. Kontraindiziert — Auswaschphase von 14 Tagen einhalten.'},
+  {g:['Opioid','SSRI'],        sev:'warning', txt:'Opioid + SSRI: Tramadol + SSRI ist besonders problematisch (Serotonin-Syndrom-Risiko). Auch andere Opioide können in Kombination die zentraldämpfende Wirkung verstärken.'},
+  {g:['Opioid','Zentral'],     sev:'warning', txt:'Opioid + zentral wirkendes Antihypertensivum (Clonidin, Moxonidin): Gegenseitige Verstärkung der sedierenden Wirkung. Blutdrucküberwachung empfohlen.'},
+  {g:['Opioid','BB'],          sev:'warning', txt:'Opioid + Betablocker: Verstärkte Blutdruck- und Herzfrequenzsenkung möglich. Vorsicht bei höherer Opioiddosierung.'},
+  {g:['Neuropathie','SSRI'],   sev:'warning', txt:'Pregabalin/Gabapentin + SSRI: Verstärkte Schläfrigkeit und zentraldämpfende Effekte möglich. Vorsicht im Straßenverkehr.'},
+  {g:['Neuropathie','Opioid'], sev:'warning', txt:'Pregabalin/Gabapentin + Opioid: Deutlich verstärkte Atemdepression und Sedierung. Kombination nur unter engmaschiger ärztlicher Kontrolle — Risiko für Atemlähmung erhöht.'},
+  {g:['Paracetamol','VKA'],    sev:'warning', txt:'Paracetamol (höhere Dosen, > 2 g/Tag) + Marcumar/Warfarin: Regelmäßige Einnahme von Paracetamol kann den INR-Wert erhöhen und das Blutungsrisiko verstärken. INR-Kontrolle empfohlen.'},
+
+  // ── Blutverdünner ───────────────────────────────────────────
+  {g:['DOAK','VKA'],           sev:'danger',  txt:'DOAK + Vitamin-K-Antagonist (Marcumar): Zwei verschiedene Antikoagulantien gleichzeitig — extrem hohes Blutungsrisiko. Kombination ist kontraindiziert.'},
+  {g:['DOAK','TAH'],           sev:'warning', txt:'DOAK + Thrombozytenhemmer (Clopidogrel, Ticagrelor): Erhöhtes Blutungsrisiko durch zwei verschiedene Hemmmechanismen. Kombination nur bei klarer Indikation und ärztlicher Überwachung.'},
+  {g:['VKA','TAH'],            sev:'warning', txt:'Marcumar/Warfarin + Thrombozytenhemmer: Erhöhtes Blutungsrisiko. Kombination (z.B. nach Stentimplantation) nur unter strenger ärztlicher Kontrolle mit regelmäßigen INR-Kontrollen.'},
+  {g:['Antikoagulans','SSRI'], sev:'warning', txt:'Antikoagulans + SSRI: SSRIs hemmen die Blutplättchenaggregation und können das Blutungsrisiko unter Antikoagulantien (besonders Marcumar) verstärken. INR-Kontrolle empfohlen.'},
+  {g:['Antikoagulans','SNRI'], sev:'warning', txt:'Antikoagulans + SNRI: SNRIs können wie SSRIs die Blutplättchenfunktion beeinträchtigen und das Blutungsrisiko erhöhen.'},
+  {g:['VKA','Statin'],         sev:'warning', txt:'Marcumar/Warfarin + Statin: Einige Statine (besonders Fluvastatin, Rosuvastatin) können den INR-Wert erhöhen. Nach Beginn oder Änderung der Statindosis INR kontrollieren.'},
+  {g:['VKA','BB'],             sev:'warning', txt:'Marcumar + Betablocker: Propranolol kann den Abbau von Warfarin hemmen und den INR erhöhen. INR-Kontrolle nach Änderung der Dosierung empfohlen.'},
+  {g:['Heparin','TAH'],        sev:'warning', txt:'Heparin + Thrombozytenhemmer: Verstärktes Blutungsrisiko durch additive Wirkung. Kombination in der Kardiologie üblich, erfordert aber engmaschige Überwachung.'},
+  {g:['DOAK','RAAS'],          sev:'warning', txt:'DOAK + ACE-Hemmer oder Sartan: Einige DOAKs (Dabigatran) können bei eingeschränkter Nierenfunktion akkumulieren — RAAS-Hemmer beeinflussen die Nierenfunktion. Regelmäßige Nierenwertkontrolle.'},
 ];
 
 function checkInteractions() {
-  const allGroups = meds.flatMap(m => {
-    const found = MED_DB.find(d => d.name.toLowerCase() === m.name.toLowerCase());
-    return found ? medGroup(found.cls) : [];
+  // Build map: group -> list of user med names belonging to it
+  const groupToMeds = {};
+  meds.forEach(m => {
+    const found = MED_DB.find(d => normalize(d.name) === normalize(m.name));
+    if (!found) return;
+    medGroup(found.cls).forEach(g => {
+      if (!groupToMeds[g]) groupToMeds[g] = [];
+      if (!groupToMeds[g].includes(m.name)) groupToMeds[g].push(m.name);
+    });
   });
-  const groupSet = new Set(allGroups);
+  const groupSet = new Set(Object.keys(groupToMeds));
   const hits = [];
   for (const rule of IA_RULES) {
-    const matched = rule.g.filter(g => groupSet.has(g));
-    if (matched.length >= 2) {
-      // avoid duplicates
-      const key = rule.g.sort().join('|');
-      if (!hits.find(h => h.key === key)) hits.push({...rule, key});
+    const matchedGroups = rule.g.filter(g => groupSet.has(g));
+    if (matchedGroups.length >= 2) {
+      const key = [...rule.g].sort().join('|');
+      if (hits.find(h => h.key === key)) continue;
+      // collect the actual med names involved
+      const involvedNames = [...new Set(matchedGroups.flatMap(g => groupToMeds[g] || []))];
+      hits.push({...rule, key, involvedNames});
     }
   }
   return hits;
 }
 
 function renderMeds() {
-  const list = document.getElementById('med-list'), empty = document.getElementById('med-empty');
-  if (!meds.length) { list.innerHTML = '<div class="empty" id="med-empty">Noch keine Medikamente eingetragen.</div>'; }
+  const list = document.getElementById('med-list');
+  if (!meds.length) { list.innerHTML = '<div class="empty">Noch keine Medikamente eingetragen.</div>'; }
   else {
     list.innerHTML = meds.map((m,i) => {
-      const found = MED_DB.find(d => d.name.toLowerCase() === m.name.toLowerCase());
+      const found = MED_DB.find(d => normalize(d.name) === normalize(m.name));
       const cls = found ? found.cls : 'Unbekannt / Sonstiges';
-      return `<div class="med-entry">
+      const doseStr = [m.doseVal, m.doseUnit].filter(Boolean).join(' ');
+      const fullDose = [doseStr, m.freq].filter(Boolean).join(' · ');
+      return `<div class="med-entry" id="med-entry-${i}">
         <div class="med-info">
           <div class="med-name">${m.name}</div>
           <div class="med-cls">${cls}</div>
-          ${m.dose||m.freq ? `<div class="med-dose">${[m.dose,m.freq].filter(Boolean).join(' · ')}</div>` : ''}
+          ${fullDose ? `<div class="med-dose" id="med-dose-disp-${i}">${fullDose}</div>` : ''}
         </div>
-        <button class="med-del" onclick="delMed(${i})">×</button>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="med-del" style="font-size:13px;width:auto;padding:0 8px;border-radius:8px;" onclick="startEdit(${i})">✎</button>
+          <button class="med-del" onclick="delMed(${i})">×</button>
+        </div>
+      </div>
+      <div class="med-edit-form" id="med-edit-${i}" style="display:none;background:var(--bg3);border-radius:14px;padding:.85rem 1rem;margin-bottom:7px;">
+        <div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Bearbeiten: ${m.name}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+          <div class="fi"><label>Menge</label><input type="number" id="edit-val-${i}" value="${m.doseVal||''}" inputmode="decimal" min="0" step="any"></div>
+          <div class="fi"><label>Einheit</label>
+            <select id="edit-unit-${i}">
+              ${['mg','µg','ml','IE','mmol','g','Tropfen','Hub','Pflaster','Tbl.','%'].map(u=>`<option${m.doseUnit===u?' selected':''}>${u}</option>`).join('')}
+            </select>
+          </div>
+          <div class="fi"><label>Einnahme</label>
+            <select id="edit-freq-${i}">
+              ${['1× täglich','2× täglich','3× täglich','morgens','mittags','abends','zur Nacht','bei Bedarf','wöchentlich'].map(f=>`<option${m.freq===f?' selected':''}>${f}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="saveEdit(${i})" style="flex:1;padding:10px;font-size:14px;font-weight:600;cursor:pointer;border-radius:10px;border:none;background:var(--tx);color:var(--bg);font-family:inherit">Speichern</button>
+          <button onclick="cancelEdit(${i})" style="padding:10px 14px;font-size:14px;cursor:pointer;border-radius:10px;border:.5px solid var(--bd2);background:var(--bg2);color:var(--tx);font-family:inherit">Abbrechen</button>
+        </div>
       </div>`;
     }).join('');
   }
@@ -895,6 +1040,9 @@ function renderMeds() {
       <div class="ia-head">
         <span class="ia-icon">${r.sev==='danger'?'🚨':'⚡'}</span>
         <span class="ia-label">${r.sev==='danger'?'Wichtiger Hinweis':'Hinweis'}</span>
+      </div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:5px;opacity:.9">
+        Betroffene Medikamente: ${r.involvedNames.map(n=>`<span style="display:inline-block;background:rgba(0,0,0,.12);border-radius:6px;padding:1px 7px;margin:1px 2px;font-weight:600">${n}</span>`).join('')}
       </div>
       <div class="ia-text">${r.txt}</div>
     </div>`).join('') +
@@ -925,15 +1073,31 @@ function selectMed(name, cls) {
 function addMed() {
   const name = document.getElementById('med-input').value.trim();
   if (!name) return;
-  const dose = document.getElementById('med-dose').value.trim();
-  const freq = document.getElementById('med-freq').value;
-  if (meds.find(m => m.name.toLowerCase() === name.toLowerCase())) { alert('Bereits in der Liste.'); return; }
-  meds.push({ name, dose, freq });
+  const doseVal  = document.getElementById('med-dose-val').value.trim();
+  const doseUnit = document.getElementById('med-dose-unit').value;
+  const freq     = document.getElementById('med-freq').value;
+  if (meds.find(m => normalize(m.name) === normalize(name))) { alert('Bereits in der Liste.'); return; }
+  meds.push({ name, doseVal, doseUnit, freq });
   persistMeds();
   document.getElementById('med-input').value = '';
-  document.getElementById('med-dose').value = '';
+  document.getElementById('med-dose-val').value = '';
   document.getElementById('med-sugg').style.display = 'none';
   selectedMed = null;
+  renderMeds();
+}
+function startEdit(i) {
+  document.getElementById('med-entry-' + i).style.display = 'none';
+  document.getElementById('med-edit-' + i).style.display = 'block';
+}
+function cancelEdit(i) {
+  document.getElementById('med-entry-' + i).style.display = 'flex';
+  document.getElementById('med-edit-' + i).style.display = 'none';
+}
+function saveEdit(i) {
+  meds[i].doseVal  = document.getElementById('edit-val-'  + i).value.trim();
+  meds[i].doseUnit = document.getElementById('edit-unit-' + i).value;
+  meds[i].freq     = document.getElementById('edit-freq-' + i).value;
+  persistMeds();
   renderMeds();
 }
 function delMed(i) {
