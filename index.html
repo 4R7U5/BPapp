@@ -11,6 +11,8 @@
 <title>Blutdruck</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -303,6 +305,7 @@ input:focus,select:focus{outline:none;border-color:var(--tx);border-width:1.5px}
       </div>
       <div class="exp-section" style="margin-top:.5rem">
         <div class="sec-lbl" style="margin-bottom:.5rem">Export</div>
+        <button class="btn-sec" onclick="exportPDF()" id="pdf-btn">📄 Arztbericht als PDF</button>
         <button class="btn-sec" onclick="exportCSV()">📊 Als CSV exportieren</button>
         <button class="btn-sec" onclick="exportJSON()">💾 Backup (JSON)</button>
         <div class="sec-lbl" style="margin-top:.75rem;margin-bottom:.5rem">Import</div>
@@ -606,6 +609,329 @@ function exportCSV(){
 }
 function exportJSON(){dl(JSON.stringify(rows,null,2),`blutdruck_backup_${new Date().toISOString().slice(0,10)}.json`,'application/json');}
 function dl(content,name,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();}
+
+async function exportPDF() {
+  const btn = document.getElementById('pdf-btn');
+  btn.textContent = '⏳ PDF wird erstellt …';
+  btn.disabled = true;
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const W = 210, M = 14; // A4 width, margin
+    const CW = W - 2 * M;  // content width
+    let y = 0;
+
+    // ── Helper functions ──────────────────────────────────────
+    const dark = false; // always light for print
+    const color = { heading: [15,15,13], sub: [107,107,101], line: [220,220,215],
+                    red: [226,75,74], blue: [55,138,221], green: [99,153,34],
+                    badgeBg: { opt:[220,252,231], norm:[236,252,203], hn:[254,243,199],
+                               g1:[255,237,213], g2:[254,226,226], g3:[254,202,202] },
+                    badgeTx: { opt:[22,163,74], norm:[77,124,15], hn:[180,83,9],
+                               g1:[194,65,12], g2:[220,38,38], g3:[153,27,27] } };
+
+    function hline(yy, alpha=40) {
+      doc.setDrawColor(...color.line);
+      doc.setLineWidth(0.2);
+      doc.line(M, yy, W-M, yy);
+    }
+    function classifyLocal(s,d) {
+      const CLS2=[
+        [180,110,'Grad 3 Hypertonie','g3'],[160,100,'Grad 2 Hypertonie','g2'],
+        [140,90,'Grad 1 Hypertonie','g1'],[130,85,'Hochnormal','hn'],
+        [120,80,'Normal','norm'],[0,0,'Optimal','opt']
+      ];
+      for(const[sv,dv,lbl,k]of CLS2)if(s>=sv||d>=dv)return{lbl,k};
+      return{lbl:'Optimal',k:'opt'};
+    }
+
+    // ── Cover / Header ────────────────────────────────────────
+    y = 18;
+    doc.setFillColor(15,15,13);
+    doc.rect(M, y, CW, 14, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(15);
+    doc.text('Blutdruck & Herzfrequenz — Arztbericht', M+5, y+9.5);
+    y += 18;
+
+    // Date range + stats
+    const dateStr = new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+    doc.setTextColor(...color.sub);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(9);
+    doc.text('Erstellt am: ' + dateStr + '   ·   Messungen gesamt: ' + rows.length, M, y);
+    y += 5;
+
+    if (rows.length) {
+      const r7 = rows.slice(-7);
+      const avg = arr => Math.round(arr.reduce((s,e)=>s+e,0)/arr.length);
+      const aS = avg(r7.map(e=>e.sys)), aD = avg(r7.map(e=>e.dia)), aH = avg(r7.map(e=>e.hr));
+      doc.text(`Durchschnitt letzte 7 Messungen:  Systole ${aS} mmHg  ·  Diastole ${aD} mmHg  ·  HF ${aH} bpm`, M, y);
+      y += 4;
+    }
+    hline(y); y += 5;
+
+    // ── Charts via html2canvas ────────────────────────────────
+    if (rows.length >= 2) {
+      // Build temporary off-screen chart canvas
+      const buildTempChart = (datasets, yMin, yMax, refLines, w=800, h=220) => {
+        return new Promise(resolve => {
+          const cv = document.createElement('canvas');
+          cv.width = w; cv.height = h;
+          cv.style.position = 'absolute'; cv.style.left = '-9999px';
+          document.body.appendChild(cv);
+
+          const d30 = rows.slice(-30);
+          const labels = d30.map(e => {
+            const dt = new Date(e.dt);
+            return dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
+          });
+
+          const refPlugin2 = {
+            id:'rl2',
+            afterDraw(ch,_,opts){
+              const{ctx,chartArea:{left,right,top,bottom},scales:{y}}=ch;
+              ctx.save(); ctx.lineWidth=1.5;
+              (opts.lines||[]).forEach(({v,col})=>{
+                const yp=y.getPixelForValue(v);
+                if(yp<top||yp>bottom)return;
+                ctx.setLineDash([6,5]);ctx.strokeStyle=col;
+                ctx.beginPath();ctx.moveTo(left,yp);ctx.lineTo(right,yp);ctx.stroke();
+              });
+              ctx.restore();
+            }
+          };
+
+          const ch = new Chart(cv, {
+            type:'line',
+            data:{ labels, datasets: datasets(d30) },
+            options:{
+              animation:false, responsive:false,
+              plugins:{
+                legend:{display:false},
+                tooltip:{enabled:false},
+                rl2:{ lines: refLines }
+              },
+              scales:{
+                x:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#888',font:{size:11},maxRotation:0,autoSkip:true,maxTicksLimit:10}},
+                y:{grid:{color:'rgba(0,0,0,0.07)'},ticks:{color:'#888',font:{size:11}},suggestedMin:yMin,suggestedMax:yMax}
+              }
+            },
+            plugins:[refPlugin2]
+          });
+
+          setTimeout(() => {
+            const img = cv.toDataURL('image/png');
+            ch.destroy(); document.body.removeChild(cv);
+            resolve(img);
+          }, 300);
+        });
+      };
+
+      // Section title
+      doc.setTextColor(...color.heading);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(11);
+      doc.text('Blutdruckverlauf (letzte 30 Messungen)', M, y);
+      y += 3;
+
+      // Legend
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      doc.setFillColor(...color.red); doc.rect(M, y, 6, 3, 'F');
+      doc.setTextColor(...color.sub); doc.text('Systole', M+8, y+2.5);
+      doc.setFillColor(...color.blue); doc.rect(M+30, y, 6, 3, 'F');
+      doc.text('Diastole', M+38, y+2.5);
+      doc.setTextColor(180,83,9); doc.text('Gestrichelt: Optimal 120/80  ·  Grad-1-Grenze 140/90', M+70, y+2.5);
+      y += 6;
+
+      const bpImg = await buildTempChart(
+        d30 => [
+          {data:d30.map(e=>e.sys),borderColor:'rgb(226,75,74)',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.35},
+          {data:d30.map(e=>e.dia),borderColor:'rgb(55,138,221)',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.35}
+        ], 55, 155,
+        [{v:120,col:'rgba(99,153,34,.6)'},{v:80,col:'rgba(99,153,34,.5)'},
+         {v:140,col:'rgba(226,75,74,.6)'},{v:90,col:'rgba(226,75,74,.5)'}]
+      );
+      const bpH = CW * 220/800;
+      doc.addImage(bpImg,'PNG', M, y, CW, bpH);
+      y += bpH + 6;
+
+      // HF chart
+      doc.setTextColor(...color.heading);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(11);
+      doc.text('Herzfrequenzverlauf (letzte 30 Messungen)', M, y);
+      y += 3;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8);
+      doc.setFillColor(...color.green); doc.rect(M, y, 6, 3, 'F');
+      doc.setTextColor(...color.sub); doc.text('Herzfrequenz (bpm)  ·  Normbereich 60–100 bpm gestrichelt', M+8, y+2.5);
+      y += 6;
+
+      const hrImg = await buildTempChart(
+        d30 => [{data:d30.map(e=>e.hr),borderColor:'rgb(99,153,34)',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.35}],
+        45, 115,
+        [{v:60,col:'rgba(99,153,34,.6)'},{v:100,col:'rgba(226,75,74,.55)'}]
+      );
+      const hrH = CW * 180/800;
+      doc.addImage(hrImg,'PNG', M, y, CW, hrH * 0.82);
+      y += hrH * 0.82 + 7;
+    }
+
+    // ── Measurements table ────────────────────────────────────
+    // New page if needed
+    if (y > 230) { doc.addPage(); y = 18; }
+    hline(y); y += 5;
+    doc.setTextColor(...color.heading);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(11);
+    doc.text('Messungen', M, y);
+    y += 5;
+
+    // Table header
+    const cols = [30, 22, 18, 18, 20, 32, 42]; // widths
+    const headers = ['Datum/Zeit','Systole','Diastole','HF','Klasse','Notiz'];
+    const xs = [M];
+    cols.forEach((w,i) => xs.push(xs[i]+w));
+
+    doc.setFillColor(240,240,238);
+    doc.rect(M, y-4, CW, 6, 'F');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...color.heading);
+    headers.forEach((h,i) => doc.text(h, xs[i]+1, y));
+    y += 3;
+    hline(y); y += 3;
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7.5);
+
+    const fdt = dt => {
+      const d = new Date(dt);
+      return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'2-digit'})
+             + ' ' + d.toTimeString().slice(0,5);
+    };
+
+    [...rows].reverse().forEach(e => {
+      if (y > 280) { doc.addPage(); y = 18; }
+      const {lbl, k} = classifyLocal(e.sys, e.dia);
+      doc.setTextColor(...color.heading);
+      doc.text(fdt(e.dt),   xs[0]+1, y);
+      doc.text(e.sys+' mmHg', xs[1]+1, y);
+      doc.text(e.dia+' mmHg', xs[2]+1, y);
+      doc.text(e.hr+' bpm',   xs[3]+1, y);
+
+      // Badge
+      const bW = cols[4]-2, bH = 4.5;
+      doc.setFillColor(...color.badgeBg[k]);
+      doc.roundedRect(xs[4]+1, y-3.5, bW, bH, 1, 1, 'F');
+      doc.setTextColor(...color.badgeTx[k]);
+      doc.setFontSize(6.5);
+      doc.text(lbl, xs[4]+2, y);
+      doc.setFontSize(7.5);
+      doc.setTextColor(...color.heading);
+
+      if (e.note) doc.text(e.note.slice(0,28), xs[5]+1, y);
+      y += 5.5;
+      hline(y-1.5);
+    });
+
+    // ── Medications ───────────────────────────────────────────
+    if (meds.length) {
+      if (y > 240) { doc.addPage(); y = 18; }
+      y += 4;
+      hline(y); y += 5;
+      doc.setTextColor(...color.heading);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(11);
+      doc.text('Medikamente', M, y);
+      y += 5;
+
+      // Table header
+      const mCols = [55, 50, 25, 25];
+      const mXs = [M]; mCols.forEach((w,i)=>mXs.push(mXs[i]+w));
+      doc.setFillColor(240,240,238);
+      doc.rect(M, y-4, CW, 6, 'F');
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(7.5);
+      ['Wirkstoff / Handelsname','Klasse','Dosis','Einnahme'].forEach((h,i) => doc.text(h, mXs[i]+1, y));
+      y += 3; hline(y); y += 3;
+
+      doc.setFont('helvetica','normal');
+      meds.forEach(m => {
+        if (y > 280) { doc.addPage(); y = 18; }
+        const found = MED_DB.find(d => normalize(d.name) === normalize(m.name));
+        const cls = found ? found.cls : 'Unbekannt';
+        const doseStr = [m.doseVal, m.doseUnit].filter(Boolean).join(' ');
+        doc.setTextColor(...color.heading);
+        doc.text(m.name.slice(0,30),  mXs[0]+1, y);
+        doc.text(cls.slice(0,28),     mXs[1]+1, y);
+        doc.text(doseStr.slice(0,10), mXs[2]+1, y);
+        doc.text((m.freq||'').slice(0,14), mXs[3]+1, y);
+        y += 5.5; hline(y-1.5);
+      });
+
+      // Interaction warnings in PDF
+      const ia = checkInteractions();
+      if (ia.length) {
+        y += 4;
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(10);
+        doc.setTextColor(153,27,27);
+        doc.text('⚠  Wechselwirkungshinweise', M, y);
+        y += 5;
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(8);
+        ia.forEach(r => {
+          if (y > 275) { doc.addPage(); y = 18; }
+          const col = r.sev==='danger' ? [153,27,27] : [146,64,14];
+          doc.setFillColor(r.sev==='danger' ? 254 : 254, r.sev==='danger' ? 226 : 243, r.sev==='danger' ? 226 : 199);
+          const lines = doc.splitTextToSize(r.involvedNames.join(', ') + ': ' + r.txt, CW-4);
+          const boxH = lines.length * 4.5 + 4;
+          doc.roundedRect(M, y-3, CW, boxH, 2, 2, 'F');
+          doc.setTextColor(...col);
+          lines.forEach(l => { doc.text(l, M+2, y); y += 4.5; });
+          y += 3;
+        });
+      }
+    }
+
+    // ── Footer ────────────────────────────────────────────────
+    const pages = doc.getNumberOfPages();
+    for (let i = 1; i <= pages; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(7);
+      doc.setTextColor(...color.sub);
+      doc.text('Blutdruck & Herzfrequenz App · Persönliche Gesundheitsdaten · Nicht für medizinische Diagnose', M, 292);
+      doc.text(`Seite ${i} / ${pages}`, W-M, 292, {align:'right'});
+    }
+
+    // ── Share or Download ─────────────────────────────────────
+    const fname = `blutdruck_arztbericht_${new Date().toISOString().slice(0,10)}.pdf`;
+    const pdfBlob = doc.output('blob');
+
+    if (navigator.share && navigator.canShare && navigator.canShare({files:[new File([pdfBlob],'test.pdf',{type:'application/pdf'})]})) {
+      const file = new File([pdfBlob], fname, {type:'application/pdf'});
+      await navigator.share({ title:'Blutdruck Arztbericht', files:[file] });
+    } else {
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url; a.download = fname; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 3000);
+    }
+
+  } catch(err) {
+    console.error(err);
+    alert('PDF konnte nicht erstellt werden: ' + err.message);
+  } finally {
+    btn.textContent = '📄 Arztbericht als PDF';
+    btn.disabled = false;
+  }
+}
 function importJSON(input){
   const f=input.files[0];if(!f)return;
   const r=new FileReader();
