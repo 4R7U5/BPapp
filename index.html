@@ -460,6 +460,45 @@ function buildZoneBar(sys) {
   } else row.innerHTML = '';
 }
 
+/* ════ SESSIONS ════ */
+// Gruppiert Messungen, die innerhalb von SESSION_GAP_MIN Minuten aufeinander folgen,
+// zu einer "Messsitzung" und bildet daraus einen repräsentativen Wert.
+// Bei ≥3 Messungen in einer Sitzung wird die erste (oft Ausreißer) verworfen
+// und der Rest gemittelt — gemäß gängiger Leitlinienempfehlung (ESC/AHA).
+// Bei 2 Messungen werden beide gemittelt, bei 1 Messung zählt diese direkt.
+const SESSION_GAP_MIN = 10;
+
+function getSessions() {
+  if (!rows.length) return [];
+  const sessions = [];
+  let current = [rows[0]];
+
+  for (let i = 1; i < rows.length; i++) {
+    const prev = new Date(current[current.length-1].dt).getTime();
+    const cur  = new Date(rows[i].dt).getTime();
+    if ((cur - prev) / 60000 <= SESSION_GAP_MIN) {
+      current.push(rows[i]);
+    } else {
+      sessions.push(current);
+      current = [rows[i]];
+    }
+  }
+  sessions.push(current);
+
+  return sessions.map(group => {
+    const useGroup = group.length >= 3 ? group.slice(1) : group;
+    const avg = arr => arr.reduce((s,e)=>s+e,0) / arr.length;
+    return {
+      sys: Math.round(avg(useGroup.map(e=>e.sys))),
+      dia: Math.round(avg(useGroup.map(e=>e.dia))),
+      hr:  Math.round(avg(useGroup.map(e=>e.hr))),
+      dt:  group[group.length-1].dt,
+      count: group.length,
+      raw: group
+    };
+  });
+}
+
 /* ════ DASHBOARD ════ */
 function refreshDash() {
   document.getElementById('d-today').textContent = new Date().toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});
@@ -478,14 +517,15 @@ function refreshDash() {
   document.getElementById('dash-last-time').textContent = t.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}) + ' ' + t.toTimeString().slice(0,5);
   buildGauge(last.sys); buildZoneBar(last.sys);
 
-  // Average of last 7 measurements (not days)
-  const r7 = rows.slice(-7);
+  // Durchschnitt der letzten 7 Messsitzungen (statt Einzelmessungen)
+  const sessions = getSessions();
+  const s7 = sessions.slice(-7);
   const avg = arr => Math.round(arr.reduce((s,e)=>s+e,0)/arr.length);
-  document.getElementById('s-sys').textContent = avg(r7.map(e=>e.sys));
-  document.getElementById('s-dia').textContent = avg(r7.map(e=>e.dia));
-  document.getElementById('s-hr').textContent  = avg(r7.map(e=>e.hr));
+  document.getElementById('s-sys').textContent = avg(s7.map(e=>e.sys));
+  document.getElementById('s-dia').textContent = avg(s7.map(e=>e.dia));
+  document.getElementById('s-hr').textContent  = avg(s7.map(e=>e.hr));
 
-  buildSparkline(r7);
+  buildSparkline(s7);
 }
 
 /* ════ SPARKLINE ════ */
@@ -665,10 +705,10 @@ async function exportPDF() {
     y += 5;
 
     if (rows.length) {
-      const r7 = rows.slice(-7);
+      const s7 = getSessions().slice(-7);
       const avg = arr => Math.round(arr.reduce((s,e)=>s+e,0)/arr.length);
-      const aS = avg(r7.map(e=>e.sys)), aD = avg(r7.map(e=>e.dia)), aH = avg(r7.map(e=>e.hr));
-      doc.text(`Durchschnitt letzte 7 Messungen:  Systole ${aS} mmHg  ·  Diastole ${aD} mmHg  ·  HF ${aH} bpm`, M, y);
+      const aS = avg(s7.map(e=>e.sys)), aD = avg(s7.map(e=>e.dia)), aH = avg(s7.map(e=>e.hr));
+      doc.text(`Durchschnitt letzte 7 Messsitzungen:  Systole ${aS} mmHg  ·  Diastole ${aD} mmHg  ·  HF ${aH} bpm`, M, y);
       y += 4;
     }
     hline(y); y += 5;
