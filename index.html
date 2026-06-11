@@ -1100,6 +1100,29 @@ const MED_DB = [
   // Glinide
   {name:'Repaglinid',cls:'Glinid'},{name:'Nateglinid',cls:'Glinid'},
 
+  // ── Blasenmedikamente ───────────────────────────────────────────
+  // Anticholinergika / Antimuskarinergika (bei überaktiver Blase)
+  {name:'Solifenacin',cls:'Anticholinergikum (Blase)'},{name:'Vesicare',cls:'Anticholinergikum (Blase)'},
+  {name:'Oxybutynin',cls:'Anticholinergikum (Blase)'},{name:'Kentera',cls:'Anticholinergikum (Blase)'},
+  {name:'Tolterodin',cls:'Anticholinergikum (Blase)'},{name:'Detrusitol',cls:'Anticholinergikum (Blase)'},
+  {name:'Fesoterodin',cls:'Anticholinergikum (Blase)'},{name:'Toviaz',cls:'Anticholinergikum (Blase)'},
+  {name:'Trospiumchlorid',cls:'Anticholinergikum (Blase)'},{name:'Spasmex',cls:'Anticholinergikum (Blase)'},
+  {name:'Darifenacin',cls:'Anticholinergikum (Blase)'},{name:'Emselex',cls:'Anticholinergikum (Blase)'},
+  {name:'Propiverin',cls:'Anticholinergikum (Blase)'},{name:'Mictonorm',cls:'Anticholinergikum (Blase)'},
+  // Beta-3-Agonisten (bei überaktiver Blase)
+  {name:'Mirabegron',cls:'Beta-3-Agonist (Blase)'},{name:'Betmiga',cls:'Beta-3-Agonist (Blase)'},
+  {name:'Vibegron',cls:'Beta-3-Agonist (Blase)'},
+  // Sonstige Blasenmedikamente
+  {name:'Flavoxat',cls:'Sonstiges Blasenmedikament'},{name:'Urispas',cls:'Sonstiges Blasenmedikament'},
+  // Alpha-Blocker bei BPH (Prostata / Blasenauslass)
+  {name:'Tamsulosin',cls:'Alpha-1-Blocker (BPH)'},{name:'Alna',cls:'Alpha-1-Blocker (BPH)'},
+  {name:'Alfuzosin',cls:'Alpha-1-Blocker (BPH)'},{name:'Uroxatral',cls:'Alpha-1-Blocker (BPH)'},
+  {name:'Silodosin',cls:'Alpha-1-Blocker (BPH)'},{name:'Urorec',cls:'Alpha-1-Blocker (BPH)'},
+  {name:'Terazosin (BPH)',cls:'Alpha-1-Blocker (BPH)'},
+  // 5-Alpha-Reduktasehemmer (Prostata)
+  {name:'Finasterid',cls:'5-Alpha-Reduktasehemmer'},{name:'Proscar',cls:'5-Alpha-Reduktasehemmer'},
+  {name:'Dutasterid',cls:'5-Alpha-Reduktasehemmer'},{name:'Avodart',cls:'5-Alpha-Reduktasehemmer'},
+
   // ── Schmerzmittel ────────────────────────────────────────────────
   // Paracetamol
   {name:'Paracetamol',cls:'Paracetamol'},{name:'Ben-u-ron',cls:'Paracetamol'},
@@ -1197,6 +1220,12 @@ function medGroup(cls) {
   if(cls==='Insulin')                       return ['Insulin','Hypoglykämierisiko'];
   if(cls==='Glitazon')                      return ['Glitazon'];
   if(cls==='Glinid')                        return ['Glinid','Hypoglykämierisiko'];
+  // Blasenmedikamente
+  if(cls==='Anticholinergikum (Blase)')  return ['Anticholinergikum'];
+  if(cls==='Beta-3-Agonist (Blase)')     return ['Beta3-Blase'];
+  if(cls==='Sonstiges Blasenmedikament') return ['Blasenmittel'];
+  if(cls==='Alpha-1-Blocker (BPH)')      return ['Alpha1-BPH','Alpha'];
+  if(cls==='5-Alpha-Reduktasehemmer')    return ['Alpha5R'];
   // Schmerzmittel
   if(cls==='Paracetamol')                   return ['Paracetamol'];
   if(cls==='Metamizol')                     return ['Metamizol'];
@@ -1262,6 +1291,18 @@ const IA_RULES = [
   {g:['Metformin','Diuretikum'],sev:'warning',txt:'Metformin + Diuretikum: Diuretika können die Nierenfunktion beeinflussen und so das Laktatazidose-Risiko unter Metformin erhöhen. Bei Erkrankungen oder Operationen Metformin ggf. pausieren.'},
   {g:['Glitazon','Diuretikum'],sev:'warning',txt:'Pioglitazon + Diuretikum: Glitazone fördern Wassereinlagerungen — in Kombination mit Diuretika kann es zu unvorhersehbaren Flüssigkeitsverschiebungen kommen.'},
   {g:['SH','SSRI'],           sev:'warning', txt:'Sulfonylharnstoff + SSRI: SSRIs können den Blutzucker beeinflussen und die Hypoglykämiegefahr unter Sulfonylharnstoffen möglicherweise erhöhen. Blutzuckerkontrollen engmaschiger durchführen.'},
+
+  // ── Blasenmedikamente ──────────────────────────────────────────
+  {g:['Anticholinergikum','TCA'],   sev:'danger',  txt:'Anticholinergikum (Blase) + Trizyklisches Antidepressivum: Beide Substanzklassen haben anticholinerge Wirkung — die Kombination kann zu stark verstärkten Nebenwirkungen führen: Mundtrockenheit, Verstopfung, Harnverhalt, Verwirrtheit, erhöhte Herzfrequenz, besonders bei älteren Patienten. Ärztliche Überwachung notwendig.'},
+  {g:['Anticholinergikum','MAOI'],  sev:'danger',  txt:'Anticholinergikum (Blase) + MAO-Hemmer: Stark verstärkte anticholinerge Wirkung möglich. Kombination kontraindiziert.'},
+  {g:['Anticholinergikum','NonDHP'],sev:'warning', txt:'Anticholinergikum (Blase) + Verapamil oder Diltiazem: Kalziumantagonisten hemmen den Abbau von Solifenacin, Tolterodin u.a. über CYP3A4 — erhöhte Wirkstoffspiegel und verstärkte Nebenwirkungen möglich. Dosisanpassung evtl. erforderlich.'},
+  {g:['Anticholinergikum','AD'],    sev:'warning', txt:'Anticholinergikum (Blase) + Antidepressivum: Viele Antidepressiva haben selbst anticholinerge Eigenschaften. Die Kombination kann Nebenwirkungen wie Mundtrockenheit, Verstopfung, Verwirrtheit und Harnverhalt verstärken.'},
+  {g:['Beta3-Blase','BB'],          sev:'warning', txt:'Mirabegron/Vibegron (Beta-3-Agonist) + Betablocker: Betablocker können die Wirkung von Mirabegron auf die Herzfrequenz beeinflussen. Blutdruck- und Herzfrequenzkontrolle empfohlen.'},
+  {g:['Beta3-Blase','NonDHP'],      sev:'warning', txt:'Mirabegron + Verapamil oder Diltiazem: CYP3A4-Hemmung kann Mirabegron-Spiegel erhöhen. Blutdrucküberwachung empfohlen.'},
+  {g:['Alpha1-BPH','RAAS'],         sev:'warning', txt:'Alpha-1-Blocker (Tamsulosin, Alfuzosin) + ACE-Hemmer oder Sartan: Additive Blutdrucksenkung möglich, besonders beim Aufstehen (orthostatische Hypotonie). Erste Einnahme abends empfohlen.'},
+  {g:['Alpha1-BPH','Diuretikum'],   sev:'warning', txt:'Alpha-1-Blocker (BPH) + Diuretikum: Verstärkte Blutdrucksenkung, erhöhtes Risiko für Schwindel und Stürze. Vorsicht besonders bei älteren Patienten.'},
+  {g:['Alpha1-BPH','NonDHP'],       sev:'warning', txt:'Alpha-1-Blocker (BPH) + Verapamil oder Diltiazem: Verstärkte Blutdrucksenkung durch additive Wirkung möglich.'},
+  {g:['Anticholinergikum','Anticholinergikum'], sev:'danger', txt:'Zwei anticholinerge Medikamente gleichzeitig: Stark erhöhtes Risiko für anticholinerge Nebenwirkungen (Harnverhalt, Verstopfung, Verwirrtheit, erhöhte Herzfrequenz). Kombination nur unter engster ärztlicher Kontrolle.'},
 
   // ── Schmerzmittel ──────────────────────────────────────────
   {g:['NSAID','Antikoagulans'],sev:'danger',  txt:'NSAID (Ibuprofen, Diclofenac, Naproxen) + Antikoagulans (DOAK, Marcumar, Heparin): Stark erhöhtes Blutungsrisiko, insbesondere im Magen-Darm-Trakt. Kombination möglichst vermeiden — wenn nötig, zusätzlich Magenschutz (PPI) und ärztliche Überwachung.'},
